@@ -19,45 +19,22 @@ export const authStore = defineStore("auth", {
       await api.get("/sanctum/csrf-cookie");
     },
 
-    async loginApi(data) {
-      try {
-        await api.get("/sanctum/csrf-cookie");
-        await api.post("/login", data);
-      } catch (err) {
-        throw err;
-      }
-    },
-
     async login(data) {
-      try {
-        this.isLoading = true;
-        await loginApi(data);
-        localStorage.setItem("auth", "true");
-        this.router.push("/administracion");
-        this.isLoading = true;
-      } catch (error) {
-        handleErrors(error, (this.isLoading = false));
-      } finally {
-        this.isLoading = false;
-      }
+      this.isLoading = true;
+      await api.get("/sanctum/csrf-cookie").then((response) => {
+        api
+          .post("/login", data)
+          .then((response) => {
+            localStorage.setItem("auth", "true");
+            this.router.push("/administracion");
+            this.isLoading = true;
+          })
+          .catch((error) => {
+            handleErrors(error, (this.isLoading = false));
+          });
+      });
+      this.isLoading = false;
     },
-
-    // async login(data) {
-    //   this.isLoading = true;
-    //   await api.get("/sanctum/csrf-cookie").then((response) => {
-    //     api
-    //       .post("/login", data)
-    //       .then((response) => {
-    //         localStorage.setItem("auth", "true");
-    //         this.router.push("/administracion");
-    //         this.isLoading = true;
-    //       })
-    //       .catch((error) => {
-    //         handleErrors(error, (this.isLoading = false));
-    //       });
-    //   });
-    //   this.isLoading = false;
-    // },
 
     async getUser() {
       await api
