@@ -26,10 +26,8 @@
   </div>
 
   <div v-else class="tw-max-w-5xl tw-mx-auto tw-mt-6 tw-px-4">
-    <SkeletonListEmpresa v-if="isLoadingEmpresa" />
-
     <!-- Primer Card de la Empresa -->
-    <q-card class="tw-rounded-lg" v-else>
+    <q-card class="tw-rounded-lg">
       <q-separator></q-separator>
 
       <q-card-section>
@@ -39,7 +37,7 @@
             <div>
               <q-img
                 :src="empresa[0]?.logo"
-                class="tw-rounded-lg tw-h-auto md:tw-w-[100px]"
+                class="tw-rounded-lg tw-h-auto md:tw-w-[120px]"
               />
             </div>
             <!-- End Img -->
@@ -153,6 +151,7 @@
       </div>
     </q-card>
 
+    <!-- Segundo y Tercer Card de la Empresa -->
     <div class="tw-my-6">
       <div class="tw-col-span-3">
         <!-- Info Empresa -->
@@ -217,13 +216,6 @@
             <dd
               class="tw-flex tw-items-center tw-gap-4 tw-mt-1 tw-text-sm tw-leading-6 tw-text-gray-700 sm:tw-col-span-2 sm:tw-mt-0"
             >
-              <!-- <div
-                v-for="(redes, index) in empresa[0]?.redes"
-                :key="index"
-                class="tw-flex"
-              >
-                <a :href="redes.url">{{ redes.name }}</a>
-              </div> -->
               <a
                 target="_blank"
                 v-if="empresa[0]?.facebook"
@@ -254,7 +246,11 @@
                 v-if="empresa[0]?.linkedin"
                 :href="empresa[0]?.linkedin"
               >
-                <q-icon name="mdi-linkedin" size="30px"></q-icon>
+                <q-icon
+                  name="mdi-linkedin"
+                  color="primary"
+                  size="30px"
+                ></q-icon>
               </a>
             </dd>
           </div>
@@ -285,8 +281,9 @@
                   outline
                 ></q-btn>
                 <q-btn
+                  v-show="empresa[0]?.video_institucional"
                   icon="delete"
-                  @click="deleteVideo"
+                  @click="isOpenDeleteVideo = true"
                   color="negative"
                   label="Eliminar"
                   outline
@@ -646,7 +643,8 @@
                   outlined
                   v-model="formInfo.twitter"
                   label="Twitter"
-                  type="text"
+                  type="url"
+                  :rules="[rules.validUrlNotRequired]"
                 />
               </div>
               <div class="col-xs-12 col-md-6">
@@ -654,7 +652,8 @@
                   outlined
                   v-model="formInfo.linkedin"
                   label="Linkedin"
-                  type="text"
+                  type="url"
+                  :rules="[rules.validUrlNotRequired]"
                 />
               </div>
               <div class="col-xs-12 col-md-6">
@@ -662,7 +661,8 @@
                   outlined
                   v-model="formInfo.youtube"
                   label="Youtube"
-                  type="text"
+                  type="url"
+                  :rules="[rules.validUrlNotRequired]"
                 />
               </div>
               <div class="col-xs-12">
@@ -671,6 +671,7 @@
                   v-model="formInfo.resumen"
                   label="Resumen"
                   type="textarea"
+                  maxlength="255"
                 />
               </div>
             </div>
@@ -690,14 +691,15 @@
         </q-form>
       </q-card>
     </q-dialog>
-
-    <DialogDelete
-      :is-open="isOpenDeleteVideo"
-      @closeDialog="isOpenDeleteVideo = false"
-      @delete="deleteVideo"
-      body-label="¿Estás seguro de eliminar este video?"
-    />
   </div>
+
+  <!-- Delete Video Dialog -->
+  <DialogDelete
+    :is-open="isOpenDeleteVideo"
+    @closeDialog="isOpenDeleteVideo = false"
+    @delete="deleteVideo"
+    body-label="¿Estás seguro de eliminar este video?"
+  />
 </template>
 
 <script setup>
@@ -707,11 +709,15 @@ import rules from "src/utils/rules";
 import { computed } from "vue";
 import { onMounted } from "vue";
 import { ref } from "vue";
-import SkeletonListEmpresa from "src/components/Skeleton/SkeletonListEmpresa.vue";
 import DialogDelete from "src/components/Dialogs/DialogDelete.vue";
+import handleHttpRequest from "src/composables/handleHttpRequest";
+import {
+  errorNotifyConfig,
+  successNotifyConfig,
+} from "src/utils/notification/notification";
 
-const $q = useQuasar();
 const empresa = ref([]);
+const $q = useQuasar();
 const isLoading = ref(false);
 const isLoadingEmpresa = ref(false);
 
@@ -731,8 +737,7 @@ const progressLabel = ref("");
 
 const isOpenDeleteVideo = ref(false);
 
-const visible = ref(false);
-const showSimulatedReturnData = ref(false);
+const { handleErrors } = handleHttpRequest();
 
 const formEmpresa = ref({
   nombre: "",
@@ -789,8 +794,8 @@ const getEmpresa = async () => {
       empresa.value = response.data.empresa;
     })
     .catch((error) => {
+      handleErrors(error);
       isLoadingEmpresa.value = false;
-      console.log(error);
     });
 };
 
@@ -814,37 +819,13 @@ const storeEmpresa = async () => {
     .then((response) => {
       isLoadingStoreEmpresaForm.value = false;
       isOpenStoreEmpresaDialog.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
       getEmpresa();
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoadingStoreEmpresaForm.value = false;
-      }
+      handleErrors(error);
+      isLoadingStoreEmpresaForm.value = false;
+      // isOpenStoreEmpresaDialog.value = false;
     });
 };
 
@@ -890,38 +871,13 @@ const updateEmpresa = async () => {
     })
     .then((response) => {
       isLoadingEditEmpresaForm.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
       isOpenEditEmpresaDialog.value = false;
       getEmpresa();
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoadingEditEmpresaForm.value = false;
-      }
+      handleErrors(error);
+      isLoadingEditEmpresaForm.value = false;
     });
 };
 
@@ -931,39 +887,14 @@ const storeInfo = () => {
   api
     .patch("/api/storeInfoEmpresa/" + empresa.value[0].id, formInfo.value)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
       isLoadingStoreInfoForm.value = false;
       isOpenStoreInfoDialog.value = false;
       getEmpresa();
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoadingStoreInfoForm.value = false;
-      }
+      handleErrors(error);
+      isLoadingStoreInfoForm.value = false;
     });
 };
 
@@ -973,13 +904,11 @@ const editInfo = () => {
     director: empresa.value[0].director,
     slogan: empresa.value[0].slogan,
     resumen: empresa.value[0].resumen,
-    facebook: empresa.value[0].face,
+    facebook: empresa.value[0].facebook,
     twitter: empresa.value[0].twitter,
     linkedin: empresa.value[0].linkedin,
     youtube: empresa.value[0].youtube,
   };
-
-  console.log(formInfo.value.facebook);
   isOpenEditInfoDialog.value = true;
 };
 
@@ -989,39 +918,14 @@ const updateInfo = () => {
   api
     .patch("/api/updateInfoEmpresa/" + empresa.value[0].id, formInfo.value)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
       isLoadingStoreInfoForm.value = false;
       isOpenEditInfoDialog.value = false;
       getEmpresa();
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoadingStoreInfoForm.value = false;
-      }
+      handleErrors(error);
+      isLoadingStoreInfoForm.value = false;
     });
 };
 
@@ -1051,12 +955,7 @@ const uploadVideo = () => {
       },
     })
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
 
       video_institucional.value = null;
       progress.value = 0;
@@ -1065,13 +964,7 @@ const uploadVideo = () => {
       getEmpresa();
     })
     .catch((error) => {
-      $q.notify({
-        type: "negative",
-        message: error.response.data.error,
-        position: "top-right",
-        progress: true,
-      });
-
+      errorNotifyConfig(error.response.data.error);
       video_institucional.value = null;
       progress.value = 0;
       showProgressBar.value = false;
@@ -1085,22 +978,12 @@ const deleteVideo = async () => {
       empresa.value[0].video_institucional
     )
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
       getEmpresa();
       isOpenDeleteVideo.value = false;
     })
     .catch((error) => {
-      // $q.notify({
-      //   type: "negatice",
-      //   message: error.response.data.message,
-      //   position: "top-right",
-      //   progress: true,
-      // });
+      errorNotifyConfig(error);
       console.log(error);
     });
 };

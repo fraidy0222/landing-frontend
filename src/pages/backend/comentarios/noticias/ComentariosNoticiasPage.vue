@@ -103,6 +103,7 @@
       :is-open="isOpenDelete"
       @delete="deleteEstado"
       @closeDialog="isOpenDelete = false"
+      :is-delete-loading="isLoadingDelete"
     />
 
     <q-dialog v-model="isOpenComentarioNoticiaItem">
@@ -141,13 +142,12 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
-import { onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import useTable from "src/composables/useTable";
 import DeleteDialog from "src/components/Dialogs/DialogDelete.vue";
-import ButtonTooltip from "src/components/Buttons/ButtonTooltip.vue";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
 const { getPaginationLabel, textInfo } = useTable();
 
@@ -219,11 +219,13 @@ const columns = [
 
 const isLoading = ref(false);
 const isOpenDelete = ref(false);
+const isLoadingDelete = ref(false);
 const comentariosNoticias = ref([]);
 const comentariosNoticiasInfo = ref([]);
 const deleteComentarioNoticiaId = ref([]);
 const isOpenComentarioNoticiaItem = ref(false);
-const $q = useQuasar();
+
+const { handleErrors } = handleHttpRequest();
 
 onMounted(() => {
   getComentariosNoticias();
@@ -243,35 +245,19 @@ const getComentariosNoticias = () => {
 };
 
 const deleteEstado = () => {
+  isLoadingDelete.value = true;
   api
     .delete("/api/comentarios/" + deleteComentarioNoticiaId.value.id)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
       isOpenDelete.value = false;
+      isLoadingDelete.value = false;
       getComentariosNoticias();
     })
     .catch((error) => {
-      if (error.response.status === 404) {
-        $q.notify({
-          type: "negative",
-          message:
-            "Comentario de Estado no encontrado en la Base de Datos. Contacte con el Administrador del sistema.",
-          position: "top-right",
-          progress: true,
-        });
-      } else {
-        $q.notify({
-          type: "negative",
-          message: error.message,
-          position: "top-right",
-          progress: true,
-        });
-      }
+      handleErrors(error);
+      isOpenDelete.value = false;
+      isLoadingDelete.value = false;
     });
 };
 

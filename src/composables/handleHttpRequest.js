@@ -1,4 +1,8 @@
 import { Notify } from "quasar";
+import {
+  successNotifyConfig,
+  errorNotifyConfig,
+} from "src/utils/notification/notification";
 
 export default function handleHttpRequest() {
   function handleErrors(error) {
@@ -70,6 +74,18 @@ export default function handleHttpRequest() {
         break;
 
       default:
+    }
+
+    if (error.response.data) {
+      for (let field in error.response.data.errors) {
+        if (Array.isArray(error.response.data.errors[field])) {
+          error.response.data.errors[field].forEach((errorMessage) => {
+            errorNotifyConfig(errorMessage);
+          });
+        } else {
+          errorNotifyConfig(error.response.data.errors[field]);
+        }
+      }
     }
   }
   return {

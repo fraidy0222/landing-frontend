@@ -122,8 +122,8 @@ import {
   successNotifyConfig,
   errorNotifyConfig,
 } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
-const $q = useQuasar();
 const router = useRouter();
 const user_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
@@ -136,6 +136,7 @@ const isLoadingEmail = ref(false);
 const hasEmailError = ref(false);
 
 const selectRole = ref(null);
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   name: "",
@@ -167,7 +168,7 @@ const getUser = () => {
       form.value.password = "";
     })
     .catch((error) => {
-      errorNotifyConfig("No se encontro el elemento");
+      handleErrors(error);
       $q.loading.hide();
     });
 };
@@ -183,18 +184,7 @@ const updateUsers = () => {
       router.push({ path: "/usuarios" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              errorNotifyConfig(errorMessage);
-            });
-          } else {
-            errorNotifyConfig(error.response.data.errors[field]);
-          }
-        }
-        isLoadingUpdate.value = false;
-      }
+      handleErrors(error);
     });
 };
 

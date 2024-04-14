@@ -115,6 +115,8 @@ import { api } from "boot/axios";
 import rules from "src/utils/rules";
 import { authStore } from "src/stores/auth-store";
 import { useRouter } from "vue-router";
+import handleHttpRequest from "src/composables/handleHttpRequest";
+import { successNotifyConfig } from "src/utils/notification/notification";
 
 const $q = useQuasar();
 const user = authStore();
@@ -124,6 +126,8 @@ const estados = ref([]);
 const selectEstado = ref(null);
 const router = useRouter();
 const isLoading = ref(false);
+
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   nombre_comentario: "",
@@ -150,38 +154,11 @@ const storeComentarioNoticia = () => {
     .post("/api/comentarios", form.value)
     .then((response) => {
       isLoading.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
-
+      successNotifyConfig(response.data.message);
       router.push({ path: "/comentarios-noticias" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoading.value = false;
-      }
+      handleErrors(error);
     });
 };
 

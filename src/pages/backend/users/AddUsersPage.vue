@@ -123,6 +123,7 @@ import {
   successNotifyConfig,
   errorNotifyConfig,
 } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
 const router = useRouter();
 const isLoading = ref(false);
@@ -131,6 +132,8 @@ const hasEmailError = ref(false);
 const selectRole = ref(null);
 const isLoadingUser = ref(false);
 const hasUserError = ref(false);
+
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   name: "",
@@ -146,20 +149,6 @@ const roles = ref(["Administrador", "Editor"]);
 
 const addUser = async (user) => {
   return api.post("/api/users", user);
-};
-
-const handleErrors = (error) => {
-  if (error.response.data) {
-    for (let field in error.response.data.errors) {
-      if (Array.isArray(error.response.data.errors[field])) {
-        error.response.data.errors[field].forEach((errorMessage) => {
-          errorNotifyConfig(errorMessage);
-        });
-      } else {
-        errorNotifyConfig(error.response.data.errors[field]);
-      }
-    }
-  }
 };
 
 const storeUser = async () => {

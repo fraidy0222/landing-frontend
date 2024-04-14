@@ -72,6 +72,7 @@
       :is-open="isOpenDelete"
       @delete="deleteUser"
       @closeDialog="isOpenDelete = false"
+      :is-delete-loading="isLoadingDelete"
     />
   </div>
 </template>
@@ -84,6 +85,8 @@ import { onMounted } from "vue";
 import useTable from "src/composables/useTable";
 import DeleteDialog from "src/components/Dialogs/DialogDelete.vue";
 import ButtonTooltip from "src/components/Buttons/ButtonTooltip.vue";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
 const { getPaginationLabel, textInfo } = useTable();
 
@@ -134,9 +137,10 @@ const columns = [
 
 const isLoading = ref(false);
 const isOpenDelete = ref(false);
+const isLoadingDelete = ref(false);
 const users = ref([]);
 const deleteUserId = ref([]);
-const $q = useQuasar();
+const { handleErrors } = handleHttpRequest();
 
 onMounted(() => {
   getUsers();
@@ -156,35 +160,19 @@ const getUsers = () => {
 };
 
 const deleteUser = () => {
+  isLoadingDelete.value = true;
   api
     .delete("/api/users/" + deleteUserId.value.id)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      isLoadingDelete.value = false;
+      successNotifyConfig(response.data.message);
       isOpenDelete.value = false;
       getUsers();
     })
     .catch((error) => {
-      if (error.response.status === 404) {
-        $q.notify({
-          type: "negative",
-          message:
-            "Usuario no encontrado en la Base de Datos. Contacte con el Administrador del sistema.",
-          position: "top-right",
-          progress: true,
-        });
-      } else {
-        $q.notify({
-          type: "negative",
-          message: error.message,
-          position: "top-right",
-          progress: true,
-        });
-      }
+      handleErrors(error);
+      isLoadingDelete.value = false;
+      isOpenDelete.value = false;
     });
 };
 </script>
