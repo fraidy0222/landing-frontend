@@ -27,7 +27,7 @@ export default function handleHttpRequest() {
       case 404:
         Notify.create({
           message:
-            "Elemento no se encuentra en la Base de Datos. Contacte con el Administrador del sistema.",
+            "El elemento no se encuentra en la Base de Datos. Contacte con el Administrador del sistema.",
           color: "negative",
           position: "top-right",
         });

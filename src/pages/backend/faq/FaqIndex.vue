@@ -23,11 +23,7 @@
           <div class="tw-w-60 ellipsis">{{ props.row.respuesta }}</div>
         </td>
       </template>
-      <template v-slot:body-cell-created_at="props">
-        <td>
-          <div>{{ formatDate(props.row.created_at) }}</div>
-        </td>
-      </template>
+
       <template v-slot:top-right>
         <q-btn
           class="bg-primary text-white"
@@ -76,13 +72,12 @@
 
 <script setup>
 import { ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { onMounted } from "vue";
 import useTable from "src/composables/useTable";
 import DeleteDialog from "components/Dialogs/DialogDelete.vue";
 import ButtonTooltip from "components/Buttons/ButtonTooltip.vue";
-import dayjs from "dayjs";
+import { successNotifyConfig } from "src/utils/notification/notification";
 import handleHttpRequest from "src/composables/handleHttpRequest";
 
 const { handleErrors } = handleHttpRequest();
@@ -124,16 +119,11 @@ const isLoading = ref(false);
 const isOpenDelete = ref(false);
 const faqs = ref([]);
 const deleteFaqId = ref([]);
-const $q = useQuasar();
 const isDeleteLoading = ref(false);
 
 onMounted(() => {
   getFaq();
 });
-
-function formatDate(date) {
-  return dayjs(date).format("YYYY-MM-DD - HH:mm");
-}
 
 const checkDelete = (row) => {
   deleteFaqId.value = row;
@@ -142,10 +132,13 @@ const checkDelete = (row) => {
 
 const getFaq = async () => {
   isLoading.value = true;
-  await api.get("/api/faqs").then((response) => {
-    isLoading.value = false;
-    faqs.value = response.data.faqs;
-  });
+  await api
+    .get("/api/faqs")
+    .then((response) => {
+      isLoading.value = false;
+      faqs.value = response.data.faqs;
+    })
+    .catch((error) => handleErrors(error));
 };
 
 const deleteFaq = () => {
@@ -153,12 +146,7 @@ const deleteFaq = () => {
   api
     .delete("/api/faqs/" + deleteFaqId.value.id + "/")
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
       isDeleteLoading.value = false;
       isOpenDelete.value = false;
       getFaq();

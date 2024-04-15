@@ -14,6 +14,7 @@
                 label="Pregunta"
                 type="text"
                 lazy-rules
+                :rules="[rules.required]"
               />
             </div>
             <div class="col-xs-12 col-sm-6">
@@ -22,6 +23,8 @@
                 v-model="form.respuesta"
                 label="Respuesta"
                 type="text"
+                lazy-rules
+                :rules="[rules.required]"
               />
             </div>
           </div>
@@ -53,14 +56,17 @@
 
 <script setup>
 import { ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 import rules from "src/utils/rules";
 
-const $q = useQuasar();
 const router = useRouter();
+
 const isLoading = ref(false);
+
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   pregunta: "",
@@ -72,28 +78,13 @@ const storeFaq = () => {
   api
     .post("/api/faqs/", form.value)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
-
+      successNotifyConfig(response.data.message);
       isLoading.value = false;
       router.push({ path: "/preguntas-frecuentes" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let i in error.response.data.errors) {
-          $q.notify({
-            type: "negative",
-            message: error.response.data.errors[i],
-            position: "top-right",
-            progress: true,
-          });
-        }
-        isLoading.value = false;
-      }
+      handleErrors(error);
+      isLoading.value = false;
     });
 };
 </script>

@@ -23,6 +23,8 @@
                 v-model="form.respuesta"
                 label="Respuesta"
                 type="text"
+                lazy-rules
+                :rules="[rules.required]"
               />
             </div>
           </div>
@@ -54,15 +56,17 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 import rules from "src/utils/rules";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
-const $q = useQuasar();
 const router = useRouter();
 const faq_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
+
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   pregunta: "",
@@ -74,9 +78,12 @@ onMounted(() => {
 });
 
 const getFaq = () => {
-  api.get(`/api/faqs/` + faq_id).then((response) => {
-    form.value = response.data;
-  });
+  api
+    .get(`/api/faqs/` + faq_id)
+    .then((response) => {
+      form.value = response.data;
+    })
+    .catch((error) => handleErrors(error));
 };
 
 const updateFaq = () => {
@@ -84,27 +91,12 @@ const updateFaq = () => {
   api
     .put("/api/faqs/" + faq_id + "/", form.value)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
-
+      successNotifyConfig(response.data.message);
       isLoading.value = false;
       router.push({ path: "/preguntas-frecuentes" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let i in error.response.data.errors) {
-          $q.notify({
-            type: "negative",
-            message: error.response.data.errors[i],
-            position: "top-right",
-            progress: true,
-          });
-        }
-      }
+      handleErrors(error);
       isLoading.value = false;
     });
 };
