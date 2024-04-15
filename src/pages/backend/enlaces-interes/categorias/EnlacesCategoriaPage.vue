@@ -126,6 +126,7 @@ import useTable from "src/composables/useTable";
 import DeleteDialog from "src/components/Dialogs/DialogDelete.vue";
 import ButtonTooltip from "src/components/Buttons/ButtonTooltip.vue";
 import handleHttpRequest from "src/composables/handleHttpRequest";
+import { successNotifyConfig } from "src/utils/notification/notification";
 
 const { getPaginationLabel, textInfo } = useTable();
 const { handleErrors } = handleHttpRequest();
@@ -188,10 +189,13 @@ const checkDelete = (row) => {
 
 const getEnlacesCategorias = () => {
   isLoading.value = true;
-  api.get(`/api/categorylink/`).then((response) => {
-    isLoading.value = false;
-    categorias.value = response.data.categorias;
-  });
+  api
+    .get(`/api/categorylink/`)
+    .then((response) => {
+      isLoading.value = false;
+      categorias.value = response.data.categorias;
+    })
+    .catch((error) => handleErrors(error));
 };
 
 const deleteEnlacesCategorias = () => {
@@ -200,29 +204,13 @@ const deleteEnlacesCategorias = () => {
     .delete("/api/categorylink/" + deleteEnlacesCategoriaId.value.id + "/")
     .then((response) => {
       isDeleteLoading.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
       isOpenDelete.value = false;
       getEnlacesCategorias();
     })
     .catch((error) => {
-      if (error.response.data.error) {
-        $q.notify({
-          type: "negative",
-          message: error.response.data.error,
-          position: "top-right",
-          progress: true,
-        });
-      }
-      handleErrors(
-        error,
-        (isOpenDelete.value = false),
-        (isDeleteLoading.value = false)
-      );
+      handleErrors(error);
+      (isOpenDelete.value = false), (isDeleteLoading.value = false);
     });
 };
 </script>

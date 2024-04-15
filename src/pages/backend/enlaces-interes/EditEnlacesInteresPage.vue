@@ -73,17 +73,19 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 import rules from "src/utils/rules";
+import handleHttpRequest from "src/composables/handleHttpRequest";
+import { successNotifyConfig } from "src/utils/notification/notification";
 
-const $q = useQuasar();
 const router = useRouter();
 const enlace_id = router.currentRoute.value.params.id;
 const categorias = ref([]);
 const selectCategoria = ref(null);
 const isLoading = ref(false);
+
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   nombre: "",
@@ -96,11 +98,16 @@ onMounted(() => {
 });
 
 const getEnlaceInteres = () => {
-  api.get(`/api/enlaces/` + enlace_id).then((response) => {
-    console.log(response.data);
-    form.value = response.data.enlace;
-    selectCategoria.value = response.data.categoria;
-  });
+  api
+    .get(`/api/enlaces/` + enlace_id)
+    .then((response) => {
+      console.log(response.data);
+      form.value = response.data.enlace;
+      selectCategoria.value = response.data.categoria;
+    })
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 
 const getCategorias = () => {
@@ -109,7 +116,7 @@ const getCategorias = () => {
     .then((response) => {
       categorias.value = response.data.categorias;
     })
-    .catch((error) => console.log(error));
+    .catch((error) => handleHttpRequest(error));
 };
 
 const updateEnlaceInteres = () => {
@@ -119,38 +126,13 @@ const updateEnlaceInteres = () => {
     .put("/api/enlaces/" + enlace_id, form.value)
     .then((response) => {
       isLoading.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
 
       router.push({ path: "/enlaces-interes" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoading.value = false;
-      }
+      handleErrors(error);
+      isLoading.value = false;
     });
 };
 </script>

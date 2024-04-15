@@ -24,6 +24,7 @@
                 label="Dirección URL"
                 type="text"
                 hint="http://ejemplo.com"
+                :rules="[rules.validUrlNotRequired]"
               />
             </div>
             <div class="col-xs-12 col-sm-6">
@@ -80,12 +81,16 @@ import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 import rules from "src/utils/rules";
+import handleHttpRequest from "src/composables/handleHttpRequest";
+import { successNotifyConfig } from "src/utils/notification/notification";
 
 const $q = useQuasar();
 const router = useRouter();
 const categorias = ref([]);
 const selectCategoria = ref(null);
 const isLoading = ref(false);
+
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   nombre: "",
@@ -102,7 +107,9 @@ const getCategorias = () => {
     .then((response) => {
       categorias.value = response.data.categorias;
     })
-    .catch((error) => console.log(error));
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 
 const storeEnlacesInteres = () => {
@@ -112,38 +119,13 @@ const storeEnlacesInteres = () => {
     .post("/api/enlaces", form.value)
     .then((response) => {
       isLoading.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
 
       router.push({ path: "/enlaces-interes" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoading.value = false;
-      }
+      handleErrors(error);
+      isLoading.value = false;
     });
 };
 </script>

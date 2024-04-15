@@ -54,15 +54,16 @@
 
 <script setup>
 import { ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 import rules from "src/utils/rules";
+import handleHttpRequest from "src/composables/handleHttpRequest";
+import { successNotifyConfig } from "src/utils/notification/notification";
 
-const $q = useQuasar();
 const router = useRouter();
-const enlaces = ref([]);
 const isLoading = ref(false);
+
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   nombre: "",
@@ -80,38 +81,13 @@ const storeEnlacesCategoria = () => {
     .post("/api/categorylink/", formEnlacesCategorias)
     .then((response) => {
       isLoading.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
 
       router.push({ path: "/enlaces-categorias" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoading.value = false;
-      }
+      handleErrors(error);
+      isLoading.value = false;
     });
 };
 </script>

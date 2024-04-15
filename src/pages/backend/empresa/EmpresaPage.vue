@@ -551,6 +551,7 @@
                   v-model="formInfo.facebook"
                   label="Facebook"
                   type="text"
+                  hint="http://facebook.com"
                 />
               </div>
               <div class="col-xs-12 col-md-6">
@@ -559,6 +560,7 @@
                   v-model="formInfo.twitter"
                   label="Twitter"
                   type="text"
+                  hint="http://twitter.com"
                 />
               </div>
               <div class="col-xs-12 col-md-6">
@@ -567,6 +569,7 @@
                   v-model="formInfo.linkedin"
                   label="Linkedin"
                   type="text"
+                  hint="http://linkedin.com"
                 />
               </div>
               <div class="col-xs-12 col-md-6">
@@ -575,6 +578,7 @@
                   v-model="formInfo.youtube"
                   label="Youtube"
                   type="text"
+                  hint="http://youtube.com"
                 />
               </div>
               <div class="col-xs-12">
@@ -634,8 +638,8 @@
                   outlined
                   v-model="formInfo.facebook"
                   label="Facebook"
-                  type="url"
-                  :rules="[rules.validUrlNotRequired]"
+                  type="text"
+                  hint="http://facebook.com"
                 />
               </div>
               <div class="col-xs-12 col-md-6">
@@ -643,8 +647,8 @@
                   outlined
                   v-model="formInfo.twitter"
                   label="Twitter"
-                  type="url"
-                  :rules="[rules.validUrlNotRequired]"
+                  type="text"
+                  hint="http://twitter.com"
                 />
               </div>
               <div class="col-xs-12 col-md-6">
@@ -652,8 +656,8 @@
                   outlined
                   v-model="formInfo.linkedin"
                   label="Linkedin"
-                  type="url"
-                  :rules="[rules.validUrlNotRequired]"
+                  type="text"
+                  hint="http://linkedin.com"
                 />
               </div>
               <div class="col-xs-12 col-md-6">
@@ -661,8 +665,8 @@
                   outlined
                   v-model="formInfo.youtube"
                   label="Youtube"
-                  type="url"
-                  :rules="[rules.validUrlNotRequired]"
+                  type="text"
+                  hint="http://youtube.com"
                 />
               </div>
               <div class="col-xs-12">
@@ -671,7 +675,6 @@
                   v-model="formInfo.resumen"
                   label="Resumen"
                   type="textarea"
-                  maxlength="255"
                 />
               </div>
             </div>

@@ -82,6 +82,8 @@ import { onMounted } from "vue";
 import useTable from "src/composables/useTable";
 import DeleteDialog from "src/components/Dialogs/DialogDelete.vue";
 import ButtonTooltip from "components/Buttons/ButtonTooltip.vue";
+import handleHttpRequest from "src/composables/handleHttpRequest";
+import { successNotifyConfig } from "src/utils/notification/notification";
 
 const { getPaginationLabel, textInfo } = useTable();
 
@@ -123,6 +125,8 @@ const deleteEnlacesInteresId = ref([]);
 const $q = useQuasar();
 const isDeleteDialog = ref(false);
 
+const { handleErrors } = handleHttpRequest();
+
 onMounted(() => {
   getEnlacesInteres();
 });
@@ -134,10 +138,15 @@ const checkDelete = (row) => {
 
 const getEnlacesInteres = () => {
   isLoading.value = true;
-  api.get(`/api/enlaces/`).then((response) => {
-    isLoading.value = false;
-    enlaces.value = response.data.enlaces;
-  });
+  api
+    .get(`/api/enlaces/`)
+    .then((response) => {
+      isLoading.value = false;
+      enlaces.value = response.data.enlaces;
+    })
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 
 const deleteEnlacesInteres = () => {
@@ -146,32 +155,12 @@ const deleteEnlacesInteres = () => {
     .delete("/api/enlaces/" + deleteEnlacesInteresId.value.id)
     .then((response) => {
       isDeleteDialog.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
       isOpenDelete.value = false;
       getEnlacesInteres();
     })
     .catch((error) => {
-      if (error.response.status === 404) {
-        $q.notify({
-          type: "negative",
-          message:
-            "Enlace no encontrado en la Base de Datos. Contacte con el Administrador del sistema.",
-          position: "top-right",
-          progress: true,
-        });
-      } else {
-        $q.notify({
-          type: "negative",
-          message: error.message,
-          position: "top-right",
-          progress: true,
-        });
-      }
+      handleErrors(error);
       isDeleteDialog.value = false;
       isOpenDelete.value = false;
     });

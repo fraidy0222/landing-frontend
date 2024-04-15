@@ -58,11 +58,14 @@ import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 import rules from "src/utils/rules";
+import handleHttpRequest from "src/composables/handleHttpRequest";
+import { successNotifyConfig } from "src/utils/notification/notification";
 
-const $q = useQuasar();
 const router = useRouter();
 const categoria_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
+
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   nombre: "",
@@ -72,49 +75,27 @@ const form = ref({
 onMounted(() => {
   getCategoriaEnlace();
 });
+
 const getCategoriaEnlace = () => {
-  api.get(`/api/categorylink/` + categoria_id).then((response) => {
-    console.log(response.data);
-    form.value = response.data.categoria;
-  });
+  api
+    .get(`/api/categorylink/` + categoria_id)
+    .then((response) => {
+      console.log(response.data);
+      form.value = response.data.categoria;
+    })
+    .catch((error) => handleErrors(error));
 };
 
 const updateCategoriaEnlace = () => {
   api
     .put("/api/categorylink/" + categoria_id, form.value)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
-
+      successNotifyConfig(response.data.message);
       router.push({ path: "/enlaces-categorias" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoading.value = false;
-      }
+      handleErrors(error);
+      isLoading.value = false;
     });
 };
 </script>

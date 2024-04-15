@@ -87,6 +87,10 @@ export default function handleHttpRequest() {
         }
       }
     }
+
+    if (error.response.data.error) {
+      errorNotifyConfig(error.response.data.error);
+    }
   }
   return {
     handleErrors,
