@@ -30,7 +30,9 @@ export const authStore = defineStore("auth", {
             this.isLoading = true;
           })
           .catch((error) => {
-            handleErrors(error, (this.isLoading = false));
+            console.log(error);
+            handleErrors(error);
+            this.isLoading = false;
           });
       });
       this.isLoading = false;

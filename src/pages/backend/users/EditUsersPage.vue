@@ -125,6 +125,7 @@ import {
 import handleHttpRequest from "src/composables/handleHttpRequest";
 
 const router = useRouter();
+const $q = useQuasar();
 const user_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
 const isLoadingUpdate = ref(false);
@@ -185,6 +186,7 @@ const updateUsers = () => {
     })
     .catch((error) => {
       handleErrors(error);
+      isLoadingUpdate.value = false;
     });
 };
 

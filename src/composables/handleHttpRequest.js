@@ -1,97 +1,59 @@
 import { Notify } from "quasar";
-import {
-  successNotifyConfig,
-  errorNotifyConfig,
-} from "src/utils/notification/notification";
+import { errorNotifyConfig } from "src/utils/notification/notification";
+
+// Función para eliminar la autenticación del usuario
+const clearAuthData = () => {
+  localStorage.removeItem("auth");
+};
+
+// Función para manejar notificaciones de error
+const handleErrorNotification = (message) => {
+  Notify.create({
+    message,
+    color: "negative",
+    position: "top-right",
+  });
+};
 
 export default function handleHttpRequest() {
   function handleErrors(error) {
-    switch (error.response.status) {
-      case 401:
-        Notify.create({
-          message: "No autorizado",
-          color: "negative",
-          position: "top-right",
-        });
-        localStorage.removeItem("auth");
-        break;
+    const { status, data, config } = error.response;
+    const isLoginError = config.url.includes("login") && status === 422;
 
-      case 403:
-        Notify.create({
-          message: "No autorizado",
-          color: "negative",
-          position: "top-right",
-        });
-        break;
+    const errorMessages = {
+      401: "No autorizado",
+      403: "No autorizado",
+      404: "El elemento no se encuentra en la Base de Datos. Contacte con el Administrador del sistema.",
+      409: "Error en el servidor",
+      410: "Error en el servidor",
+      419: "Error en el servidor",
+      422: isLoginError
+        ? "Las credenciales no concuerdan con nuestros registros"
+        : null,
+      500: "Error del servidor",
+    };
 
-      case 404:
-        Notify.create({
-          message:
-            "El elemento no se encuentra en la Base de Datos. Contacte con el Administrador del sistema.",
-          color: "negative",
-          position: "top-right",
-        });
-        break;
-
-      case 409:
-        Notify.create({
-          message: "Error en el servidor",
-          color: "negative",
-          position: "top-right",
-        });
-        break;
-
-      case 410:
-        Notify.create({
-          message: "Error en el servidor",
-          color: "negative",
-          position: "top-right",
-        });
-        break;
-
-      case 419:
-        Notify.create({
-          message: "Error en el servidor",
-          color: "negative",
-          position: "top-right",
-        });
-        break;
-
-      case 422:
-        Notify.create({
-          message: "Las credenciales no concuerdan con nuestros registros",
-          color: "negative",
-          position: "top-right",
-        });
-        break;
-
-      case 500:
-        Notify.create({
-          message: "Error del servidor",
-          color: "negative",
-          position: "top-right",
-        });
-        break;
-
-      default:
+    // Manejo de errores específicos
+    if (errorMessages[status]) {
+      handleErrorNotification(errorMessages[status]);
+      if (status === 401) clearAuthData();
+    } else if (status !== 422) {
+      errorNotifyConfig("Error desconocido", status);
     }
 
-    if (error.response.data) {
-      for (let field in error.response.data.errors) {
-        if (Array.isArray(error.response.data.errors[field])) {
-          error.response.data.errors[field].forEach((errorMessage) => {
-            errorNotifyConfig(errorMessage);
-          });
+    // Manejo de errores de validación de formulario
+    if (status === 422 && !isLoginError && data && data.errors) {
+      for (let field in data.errors) {
+        const fieldErrors = data.errors[field];
+        if (Array.isArray(fieldErrors)) {
+          fieldErrors.forEach(errorNotifyConfig);
         } else {
-          errorNotifyConfig(error.response.data.errors[field]);
+          errorNotifyConfig(fieldErrors);
         }
       }
     }
-
-    if (error.response.data.error) {
-      errorNotifyConfig(error.response.data.error);
-    }
   }
+
   return {
     handleErrors,
   };
