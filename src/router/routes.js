@@ -44,11 +44,13 @@ const routes = [
       {
         path: "/add-pregunta",
         name: "Add Faq",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/faq/AddFAQsPage.vue"),
       },
       {
         path: "/editar-pregunta/:id",
         name: "Editar Faq",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/faq/EditFAQsPage.vue"),
       },
 
@@ -56,16 +58,19 @@ const routes = [
       {
         path: "/noticias",
         name: "Noticias",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/noticias/NoticiaPage.vue"),
       },
       {
         path: "/crear-noticia",
         name: "Add Noticia",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/noticias/AddNoticiasPage.vue"),
       },
       {
         path: "/editar-noticia/:id",
         name: "Editar Noticia",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/noticias/EditNoticiaPage.vue"),
       },
 
@@ -73,20 +78,21 @@ const routes = [
       {
         path: "/noticias-categorias",
         name: "categorias",
+        meta: { roles: ["Editor"] },
         component: () =>
           import("pages/backend/noticias/categorias/CategoriasPage.vue"),
       },
       {
         path: "/crear-noticias-categoria",
         name: "add-categoria",
-        meta: { groups: ["Administrador"] },
+        meta: { roles: ["Editor"] },
         component: () =>
           import("pages/backend/noticias/categorias/AddCategoriasPage.vue"),
       },
       {
         path: "/editar-noticias-categoria/:id",
         name: "edit-categoria",
-        meta: { groups: ["Administrador"] },
+        meta: { roles: ["Editor"] },
         component: () =>
           import("pages/backend/noticias/categorias/EditCategoriasPage.vue"),
       },
@@ -95,18 +101,21 @@ const routes = [
       {
         path: "/noticias-estados",
         name: "Estados",
+        meta: { roles: ["Editor"] },
         component: () =>
           import("pages/backend/noticias/estados/EstadosPage.vue"),
       },
       {
         path: "/crear-noticias-estados",
         name: "add-estados",
+        meta: { roles: ["Editor"] },
         component: () =>
           import("pages/backend/noticias/estados/AddEstadosPage.vue"),
       },
       {
         path: "/editar-noticias-estados/:id",
         name: "edit-estados",
+        meta: { roles: ["Editor"] },
         component: () =>
           import("pages/backend/noticias/estados/EditEstadosPage.vue"),
       },
@@ -115,16 +124,19 @@ const routes = [
       {
         path: "/socios",
         name: "Socios",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/socios/SociosPage.vue"),
       },
       {
         path: "/crear-socio",
         name: "crear-socio",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/socios/AddSociosPage.vue"),
       },
       {
         path: "/editar-socio/:id",
         name: "editar-socio",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/socios/EditSociosPage.vue"),
       },
 
@@ -132,16 +144,19 @@ const routes = [
       {
         path: "/servicios",
         name: "Servicos",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/servicios/ServiciosPage.vue"),
       },
       {
         path: "/crear-servicio",
         name: "crear-servicos",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/servicios/AddServiciosPage.vue"),
       },
       {
         path: "/editar-servicio/:id",
         name: "editar-servicos",
+        meta: { roles: ["Editor"] },
         component: () =>
           import("pages/backend/servicios/EditServiciosPage.vue"),
       },
@@ -150,16 +165,19 @@ const routes = [
       {
         path: "/directivos",
         name: "Directivos",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/team/TeamPage.vue"),
       },
       {
         path: "/crear-directivo",
         name: "Crear Directivo",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/team/AddTeamPage.vue"),
       },
       {
         path: "/editar-directivo/:id",
         name: "Editar Directivo",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/team/EditTeamPage.vue"),
       },
 
@@ -167,18 +185,21 @@ const routes = [
       {
         path: "/enlaces-interes",
         name: "Enlaces",
+        meta: { roles: ["Editor"] },
         component: () =>
           import("pages/backend/enlaces-interes/EnlacesInteresPage.vue"),
       },
       {
         path: "/crear-enlaces-interes",
         name: "crear-enlaces-interes",
+        meta: { roles: ["Editor"] },
         component: () =>
           import("pages/backend/enlaces-interes/AddEnlacesInteresPage.vue"),
       },
       {
         path: "/editar-enlaces-interes/:id",
         name: "editar-enlaces-interes",
+        meta: { roles: ["Editor"] },
         component: () =>
           import("pages/backend/enlaces-interes/EditEnlacesInteresPage.vue"),
       },
@@ -187,6 +208,7 @@ const routes = [
       {
         path: "/enlaces-categorias",
         name: "enlaces-categorias",
+        meta: { roles: ["Editor"] },
         component: () =>
           import(
             "pages/backend/enlaces-interes/categorias/EnlacesCategoriaPage.vue"
@@ -195,6 +217,7 @@ const routes = [
       {
         path: "/crear-enlaces-categorias",
         name: "craer-enlaces-categorias",
+        meta: { roles: ["Editor"] },
         component: () =>
           import(
             "pages/backend/enlaces-interes/categorias/AddEnlacesCategoriaPage.vue"
@@ -203,6 +226,7 @@ const routes = [
       {
         path: "/editar-enlaces-categorias/:id",
         name: "editar-enlaces-categorias",
+        meta: { roles: ["Editor"] },
         component: () =>
           import(
             "pages/backend/enlaces-interes/categorias/EditEnlacesCategoriaPage.vue"
@@ -213,7 +237,7 @@ const routes = [
       {
         path: "/comentarios-noticias",
         name: "comentarios-noticias",
-        meta: { groups: ["Administrador"] },
+        meta: { roles: ["Editor"] },
         component: () =>
           import(
             "pages/backend/comentarios/noticias/ComentariosNoticiasPage.vue"
@@ -222,6 +246,7 @@ const routes = [
       {
         path: "/crear-comentario-noticia",
         name: "crear-comentarios-noticia",
+        meta: { roles: ["Editor"] },
         component: () =>
           import(
             "pages/backend/comentarios/noticias/AddcomentariosNoticiasPage.vue"
@@ -230,6 +255,7 @@ const routes = [
       {
         path: "/editar-comentario-noticia/:id",
         name: "editar-comentarios-noticia",
+        meta: { roles: ["Editor"] },
         component: () =>
           import(
             "pages/backend/comentarios/noticias/EditComentariosNoticiaPage.vue"
