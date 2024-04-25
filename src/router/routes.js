@@ -10,16 +10,19 @@ const routes = [
       {
         path: "/usuarios",
         name: "Usuarios",
+        meta: { roles: ["Administrador"] },
         component: () => import("pages/backend/users/UsersPage.vue"),
       },
       {
         path: "/crear-usuario",
         name: "Crear Usuario",
+        meta: { roles: ["Administrador"] },
         component: () => import("pages/backend/users/AddUsersPage.vue"),
       },
       {
         path: "/editar-usuario/:id",
         name: "Editar Usuario",
+        meta: { roles: ["Administrador"] },
         component: () => import("pages/backend/users/EditUsersPage.vue"),
       },
 
@@ -27,6 +30,7 @@ const routes = [
       {
         path: "/empresa",
         name: "Empresa",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/empresa/EmpresaPage.vue"),
       },
 
@@ -34,6 +38,7 @@ const routes = [
       {
         path: "/preguntas-frecuentes",
         name: "Pregunta Frecuentes",
+        meta: { roles: ["Editor"] },
         component: () => import("pages/backend/faq/FaqIndex.vue"),
       },
       {
@@ -238,6 +243,10 @@ const routes = [
   {
     path: "/:catchAll(.*)*",
     component: () => import("pages/ErrorNotFound.vue"),
+  },
+  {
+    path: "/403",
+    component: () => import("pages/NoAutorizado.vue"),
   },
 
   {

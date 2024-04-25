@@ -1,8 +1,5 @@
 <template>
   <div class="q-pa-md">
-    <!-- <pre>
-      {{ noticias }}
-    </pre> -->
     <q-table
       flat
       bordered

@@ -4,8 +4,10 @@ import {
   createMemoryHistory,
   createWebHistory,
   createWebHashHistory,
+  useRouter,
 } from "vue-router";
 import routes from "./routes";
+import { authStore } from "src/stores/auth-store";
 
 export default route(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER
@@ -26,9 +28,17 @@ export default route(function (/* { store, ssrContext } */) {
 
   Router.beforeEach((to, from, next) => {
     const auth = localStorage.getItem("auth");
+    const userRole = localStorage.getItem("userRole");
 
-    if (to.matched.some((record) => record.meta.requireAuth && !auth)) {
-      next({ name: "Login" });
+    if (to.meta.requireAuth) {
+      if (!auth) {
+        next({ path: "/" });
+      } else if (to.meta.roles && !to.meta.roles.includes(userRole)) {
+        next({ path: "/403" });
+        // return false;
+      } else {
+        next();
+      }
     } else {
       next();
     }

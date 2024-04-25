@@ -9,6 +9,7 @@
           exact
           v-ripple
           :to="menuItem.path"
+          v-show="checkRole(menuItem.role)"
         >
           <q-item-section avatar>
             <q-icon :name="menuItem.icon" />
@@ -23,6 +24,7 @@
           expand-separator
           :icon="menuItem.icon"
           :label="menuItem.label"
+          v-if="checkRole(menuItem.role)"
         >
           <q-item
             v-for="(item, index) in menuItem.children"
@@ -46,4 +48,10 @@
 const props = defineProps({
   menuList: Array,
 });
+
+// console.log(store.userRole);
+function checkRole(value) {
+  let role = localStorage.getItem("userRole");
+  return value === role;
+}
 </script>

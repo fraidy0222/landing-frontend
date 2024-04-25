@@ -53,37 +53,29 @@ const menuList = [
   {
     icon: "home",
     label: "Inicio",
-    separator: true,
-    path: "/administracion",
-    groups: ["Administrador", "Moderador", "Consultor"],
+    path: "/adminisracion",
   },
   {
     icon: "web",
     label: "Página Web",
-    separator: true,
     target: "_blank",
     path: "/",
-    groups: ["Administrador", "Moderador", "Consultor"],
   },
   {
     icon: "manage_accounts",
     label: "Usuarios",
-    separator: false,
     path: "/usuarios",
-    groups: ["Administrador"],
+    role: ["Administrador"],
   },
   {
     icon: "house",
     label: "Empresa",
-    separator: false,
     path: "/empresa",
-    groups: ["Administrador"],
+    role: ["Editor"],
   },
   {
     icon: "newspaper",
     label: "Social OK",
-    separator: false,
-    groups: ["Administrador"],
     children: [
       { label: "Noticias", path: "/noticias" },
       { label: "Categorias", path: "/noticias-categorias" },
@@ -93,15 +85,11 @@ const menuList = [
   {
     icon: "quiz",
     label: "Preguntas Frecuentes OK",
-    separator: false,
     path: "/preguntas-frecuentes",
-    groups: ["Administrador"],
   },
   {
     icon: "link",
     label: "Pie de Página OK",
-    separator: false,
-    groups: ["Administrador"],
     children: [
       { label: "Enlaces de Interés", path: "/enlaces-interes" },
       { label: "Categorías", path: "/enlaces-categorias" },
@@ -110,36 +98,24 @@ const menuList = [
   {
     icon: "comment",
     label: "Comentarios OK",
-    separator: false,
-    groups: ["Administrador"],
     children: [{ label: "Noticias", path: "/comentarios-noticias" }],
   },
   {
     icon: "handshake",
     label: "Socios OK",
-    separator: false,
-    groups: ["Administrador"],
     path: "/socios",
   },
   {
     icon: "apps",
     label: "Servicios OK",
-    separator: false,
-    groups: ["Administrador"],
     path: "/servicios",
   },
   {
     icon: "group",
     label: "Directivos OK",
-    separator: false,
-    groups: ["Administrador"],
     path: "/directivos",
   },
 ];
-
-onMounted(() => {
-  store.getUser();
-});
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;

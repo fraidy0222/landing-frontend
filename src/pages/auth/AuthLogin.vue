@@ -65,12 +65,10 @@
 </template>
 <script setup>
 import { ref } from "vue";
-import { useQuasar } from "quasar";
 import { authStore } from "src/stores/auth-store";
 import rules from "src/utils/rules";
 import { storeToRefs } from "pinia";
 
-const $q = useQuasar();
 const userForm = ref({
   email: "",
   password: "",
