@@ -29,7 +29,7 @@
     </q-header>
 
     <q-drawer show-if-above side="left" bordered v-model="leftDrawerOpen">
-      <ListLinks :menuList="menuList" />
+      <ListLinks :menuList="menuList" :check-role="checkRole" />
     </q-drawer>
 
     <q-page-container>
@@ -45,21 +45,27 @@ import { useRouter } from "vue-router";
 import { authStore } from "src/stores/auth-store";
 
 const leftDrawerOpen = ref(true);
-
 const router = useRouter();
 const store = authStore();
+
+onMounted(() => {
+  store.getUser();
+  store.getLocalData();
+});
 
 const menuList = [
   {
     icon: "home",
     label: "Inicio",
-    path: "/adminisracion",
+    path: "/administracion",
+    role: ["Administrador", "Editor"],
   },
   {
     icon: "web",
     label: "Página Web",
     target: "_blank",
     path: "/",
+    role: ["Administrador", "Editor"],
   },
   {
     icon: "manage_accounts",
@@ -76,48 +82,68 @@ const menuList = [
   {
     icon: "newspaper",
     label: "Social OK",
+    role: ["Editor"],
     children: [
-      { label: "Noticias", path: "/noticias" },
-      { label: "Categorias", path: "/noticias-categorias" },
-      { label: "Estados", path: "/noticias-estados" },
+      { label: "Noticias", path: "/noticias", role: ["Editor"] },
+      { label: "Categorias", path: "/noticias-categorias", role: ["Editor"] },
+      { label: "Estados", path: "/noticias-estados", role: ["Editor"] },
     ],
   },
   {
     icon: "quiz",
     label: "Preguntas Frecuentes OK",
     path: "/preguntas-frecuentes",
+    role: ["Editor"],
   },
   {
     icon: "link",
     label: "Pie de Página OK",
+    role: ["Editor"],
     children: [
-      { label: "Enlaces de Interés", path: "/enlaces-interes" },
-      { label: "Categorías", path: "/enlaces-categorias" },
+      {
+        label: "Enlaces de Interés",
+        path: "/enlaces-interes",
+        role: ["Editor"],
+      },
+      { label: "Categorías", path: "/enlaces-categorias", role: ["Editor"] },
     ],
   },
   {
     icon: "comment",
     label: "Comentarios OK",
-    children: [{ label: "Noticias", path: "/comentarios-noticias" }],
+    role: ["Editor"],
+    children: [
+      { label: "Noticias", path: "/comentarios-noticias", role: ["Editor"] },
+    ],
   },
   {
     icon: "handshake",
     label: "Socios OK",
     path: "/socios",
+    role: ["Editor"],
   },
   {
     icon: "apps",
     label: "Servicios OK",
     path: "/servicios",
+    role: ["Editor"],
   },
   {
     icon: "group",
     label: "Directivos OK",
     path: "/directivos",
+    role: ["Editor"],
   },
 ];
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
+}
+
+function checkRole(value) {
+  if (value.includes(store.authUser?.role)) {
+    return true;
+  }
+  return false;
 }
 </script>

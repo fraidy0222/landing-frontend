@@ -1,7 +1,8 @@
 <template>
   <q-list>
     <div v-for="(menuItem, index) in props.menuList" :key="index">
-      <div v-if="!menuItem.children">
+      <div v-if="!menuItem.children && props.checkRole(menuItem.role)">
+        <!-- Mostrar solo si no tiene hijos y el rol coincide -->
         <q-item
           :target="menuItem.target"
           clickable
@@ -9,7 +10,6 @@
           exact
           v-ripple
           :to="menuItem.path"
-          v-show="checkRole(menuItem.role)"
         >
           <q-item-section avatar>
             <q-icon :name="menuItem.icon" />
@@ -19,12 +19,12 @@
           </q-item-section>
         </q-item>
       </div>
-      <q-list v-else>
+      <q-list v-else-if="menuItem.children && props.checkRole(menuItem.role)">
+        <!-- Mostrar solo si tiene hijos y el rol coincide -->
         <q-expansion-item
           expand-separator
           :icon="menuItem.icon"
           :label="menuItem.label"
-          v-if="checkRole(menuItem.role)"
         >
           <q-item
             v-for="(item, index) in menuItem.children"
@@ -47,11 +47,6 @@
 <script setup>
 const props = defineProps({
   menuList: Array,
+  checkRole: Function,
 });
-
-// console.log(store.userRole);
-function checkRole(value) {
-  let role = localStorage.getItem("userRole");
-  return value === role;
-}
 </script>

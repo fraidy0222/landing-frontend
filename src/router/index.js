@@ -4,10 +4,8 @@ import {
   createMemoryHistory,
   createWebHistory,
   createWebHashHistory,
-  useRouter,
 } from "vue-router";
 import routes from "./routes";
-import { authStore } from "src/stores/auth-store";
 
 export default route(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER

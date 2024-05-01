@@ -1,11 +1,6 @@
-import { defineStore, createPinia } from "pinia";
+import { defineStore } from "pinia";
 import { api } from "src/boot/axios";
 import handleHttpRequest from "src/composables/handleHttpRequest";
-import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
-
-const pinia = createPinia();
-pinia.use(piniaPluginPersistedstate);
-
 const { handleErrors, isLoading } = handleHttpRequest();
 
 export const authStore = defineStore("auth", {
@@ -27,14 +22,16 @@ export const authStore = defineStore("auth", {
         api
           .post("/login", data)
           .then((response) => {
-            this.getUser();
             localStorage.setItem("auth", "true");
+            localStorage.getItem("userRole");
             this.router.push("/administracion");
             this.isLoading = false;
           })
           .catch((error) => {
             handleErrors(error);
             localStorage.removeItem("auth", "false");
+            localStorage.removeItem("userRole");
+            localStorage.removeItem("authUser");
             this.isLoading = false;
           });
       });
@@ -46,19 +43,18 @@ export const authStore = defineStore("auth", {
         .get("/api/user")
         .then((response) => {
           localStorage.setItem("userRole", response.data.role);
-          // localStorage.setItem("authUser", response.data);
+          localStorage.setItem("authUser", JSON.stringify(this.authUser));
           this.authUser = response.data;
-          // this.userRole = response.data.role;
         })
         .catch((error) => {
           if (error.response.status === 401) {
             localStorage.removeItem("auth");
             localStorage.removeItem("userRole");
-            // localStorage.setItem("authUser", response.data);
+            localStorage.removeItem("authUser");
             this.authUser = null;
             this.userRole = null;
             this.isLoading = false;
-            this.router.replace({ name: "Login" });
+            this.router.push({ name: "Login" });
           }
         });
     },
@@ -73,6 +69,11 @@ export const authStore = defineStore("auth", {
         localStorage.removeItem("authUser");
         this.router.push("/");
       });
+    },
+
+    getLocalData() {
+      this.authUser = JSON.parse(localStorage.getItem("authUser"));
+      this.userRole = localStorage.getItem("userRole");
     },
   },
   persist: true,
