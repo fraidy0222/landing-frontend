@@ -204,7 +204,7 @@
               Resumen
             </dt>
             <dd
-              class="tw-mt-1 tw-text-sm tw-leading-6 tw-text-gray-700 sm:tw-col-span-2 sm:tw-mt-0"
+              class="tw-mt-1 tw-text-sm tw-leading-6 tw-text-gray-700 sm:tw-col-span-2 sm:tw-mt-0 tw-break-words"
             >
               {{ empresa[0]?.resumen }}
             </dd>
@@ -274,6 +274,8 @@
                   {{ progress }}%
                 </q-circular-progress>
                 <q-btn
+                  q
+                  v-show="!empresa[0]?.video_institucional"
                   icon="upload"
                   @click="uploadVideo"
                   color="primary"
@@ -411,7 +413,12 @@
           </q-card-section>
 
           <q-card-actions align="right">
-            <q-btn flat label="Cancelar" color="negative" v-close-popup />
+            <q-btn
+              flat
+              label="Cancelar"
+              color="negative"
+              @click="cleanFormStore"
+            />
             <q-btn
               type="submit"
               flat
@@ -699,6 +706,7 @@
   <!-- Delete Video Dialog -->
   <DialogDelete
     :is-open="isOpenDeleteVideo"
+    :is-delete-loading="isLoadingDeleteVideo"
     @closeDialog="isOpenDeleteVideo = false"
     @delete="deleteVideo"
     body-label="¿Estás seguro de eliminar este video?"
@@ -739,6 +747,7 @@ const progress = ref(0);
 const progressLabel = ref("");
 
 const isOpenDeleteVideo = ref(false);
+const isLoadingDeleteVideo = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -828,10 +837,13 @@ const storeEmpresa = async () => {
     .catch((error) => {
       handleErrors(error);
       isLoadingStoreEmpresaForm.value = false;
-      // isOpenStoreEmpresaDialog.value = false;
     });
 };
 
+function cleanFormStore() {
+  formEmpresa.value = null;
+  isOpenStoreEmpresaDialog.value = false;
+}
 const editEmpresa = () => {
   formEmpresa.value = {
     id: empresa.value[0].id,
@@ -975,6 +987,7 @@ const uploadVideo = () => {
 };
 
 const deleteVideo = async () => {
+  isLoadingDeleteVideo.value = true;
   await api
     .delete(
       "/api/deleteVideo/" + empresa.value[0].id,
@@ -983,11 +996,13 @@ const deleteVideo = async () => {
     .then((response) => {
       successNotifyConfig(response.data.message);
       getEmpresa();
+      isLoadingDeleteVideo.value = false;
       isOpenDeleteVideo.value = false;
     })
     .catch((error) => {
       errorNotifyConfig(error);
-      console.log(error);
+      isOpenDeleteVideo.value = false;
+      isLoadingDeleteVideo.value = false;
     });
 };
 </script>

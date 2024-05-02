@@ -1,6 +1,5 @@
 <template>
-  <div v-if="props.isLoading">Loading...</div>
-  <q-list v-else>
+  <q-list>
     <div v-for="(menuItem, index) in props.menuList" :key="index">
       <div v-if="!menuItem.children && props.checkRole(menuItem.role)">
         <!-- Mostrar solo si no tiene hijos y el rol coincide -->
@@ -49,9 +48,5 @@
 const props = defineProps({
   menuList: Array,
   checkRole: Function,
-  isLoading: {
-    type: Boolean,
-    default: false,
-  },
 });
 </script>

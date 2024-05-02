@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh lpR fFf">
+  <q-layout view="hHh Lpr lff">
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
@@ -28,7 +28,7 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer show-if-above side="left" bordered v-model="leftDrawerOpen">
+    <q-drawer show-if-above bordered v-model="leftDrawerOpen">
       <ListLinks
         :menuList="menuList"
         :check-role="checkRole"
@@ -55,7 +55,7 @@ const isLoading = ref(false);
 
 onMounted(() => {
   store.getUser();
-  // store.getLocalData();
+  store.getLocalData();
 });
 
 const menuList = [
