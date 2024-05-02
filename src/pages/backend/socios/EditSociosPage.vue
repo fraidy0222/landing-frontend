@@ -20,7 +20,9 @@
                 outlined
                 v-model="form.web"
                 label="Dirección URL"
-                type="text"
+                type="url"
+                :rules="[rules.validUrlNotRequired]"
+                hint="https://ejemplo.cu"
               />
             </div>
             <div class="col-xs-12 col-sm-6">
@@ -66,16 +68,18 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 import rules from "src/utils/rules";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
-const $q = useQuasar();
 const router = useRouter();
 const socio_id = router.currentRoute.value.params.id;
-
 const isLoading = ref(false);
+
+const { handleErrors } = handleHttpRequest();
+
 const form = ref({
   nombre: "",
   logo: null,
@@ -87,10 +91,13 @@ onMounted(() => {
 });
 
 const getSocio = () => {
-  api.get(`/api/socios/` + socio_id).then((response) => {
-    form.value = response.data.socio;
-    form.value.logo = null;
-  });
+  api
+    .get(`/api/socios/` + socio_id)
+    .then((response) => {
+      form.value = response.data.socio;
+      form.value.logo = null;
+    })
+    .catch((error) => handleErrors(error));
 };
 
 const updateSocio = () => {
@@ -119,38 +126,12 @@ const updateSocio = () => {
     })
     .then((response) => {
       isLoading.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
-
+      successNotifyConfig(error);
       router.push({ path: "/socios" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoading.value = false;
-      }
+      handleErrors(error);
+      isLoading.value = false;
     });
 };
 </script>

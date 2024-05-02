@@ -68,6 +68,7 @@
     </q-table>
     <DialogDelete
       :is-open="isOpenDelete"
+      :is-delete-loading="isLoadingDelete"
       @delete="deleteServicio"
       @closeDialog="isOpenDelete = false"
     />
@@ -76,12 +77,13 @@
 
 <script setup>
 import { ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { onMounted } from "vue";
 import useTable from "src/composables/useTable";
 import DialogDelete from "src/components/Dialogs/DialogDelete.vue";
 import ButtonTooltip from "src/components/Buttons/ButtonTooltip.vue";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
 const { getPaginationLabel, textInfo } = useTable();
 
@@ -117,10 +119,12 @@ const columns = [
 ];
 
 const isLoading = ref(false);
+const isLoadingDelete = ref(false);
 const isOpenDelete = ref(false);
 const servicios = ref([]);
 const deleteServiciosId = ref([]);
-const $q = useQuasar();
+
+const { handleErrors } = handleHttpRequest();
 
 onMounted(() => {
   getServicios();
@@ -133,42 +137,28 @@ const checkDelete = (row) => {
 
 const getServicios = () => {
   isLoading.value = true;
-  api.get("/api/servicios").then((response) => {
-    isLoading.value = false;
-    servicios.value = response.data.servicios;
-  });
+  api
+    .get("/api/servicios")
+    .then((response) => {
+      isLoading.value = false;
+      servicios.value = response.data.servicios;
+    })
+    .catch((error) => handleErrors(error));
 };
 
 const deleteServicio = () => {
+  isLoadingDelete.value = true;
   api
     .delete("/api/servicios/" + deleteServiciosId.value.id)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      isLoadingDelete.value = false;
+      successNotifyConfig(response.data.message);
       isOpenDelete.value = false;
       getServicios();
     })
     .catch((error) => {
-      if (error.response.status === 404) {
-        $q.notify({
-          type: "negative",
-          message:
-            "Servicio no encontrado en la Base de Datos. Contacte con el Administrador del sistema.",
-          position: "top-right",
-          progress: true,
-        });
-      } else {
-        $q.notify({
-          type: "negative",
-          message: error.message,
-          position: "top-right",
-          progress: true,
-        });
-      }
+      handleErrors(error);
+      isOpenDelete.value = false;
     });
 };
 </script>

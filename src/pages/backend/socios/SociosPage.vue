@@ -74,6 +74,7 @@
     </q-table>
     <DialogDelete
       :is-open="isOpenDelete"
+      :is-delete-loading="isLoadingDelete"
       @delete="deleteSocio"
       @closeDialog="isOpenDelete = false"
     />
@@ -82,12 +83,13 @@
 
 <script setup>
 import { ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { onMounted } from "vue";
 import useTable from "src/composables/useTable";
 import DialogDelete from "src/components/Dialogs/DialogDelete.vue";
 import ButtonTooltip from "src/components/Buttons/ButtonTooltip.vue";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
 const { getPaginationLabel, textInfo } = useTable();
 
@@ -118,9 +120,11 @@ const columns = [
 
 const isLoading = ref(false);
 const isOpenDelete = ref(false);
+const isLoadingDelete = ref(false);
 const socios = ref([]);
 const deleteSociosId = ref([]);
-const $q = useQuasar();
+
+const { handleErrors } = handleHttpRequest();
 
 onMounted(() => {
   getSocios();
@@ -133,42 +137,29 @@ const checkDelete = (row) => {
 
 const getSocios = () => {
   isLoading.value = true;
-  api.get("/api/socios").then((response) => {
-    isLoading.value = false;
-    socios.value = response.data.socios;
-  });
+  api
+    .get("/api/socios")
+    .then((response) => {
+      isLoading.value = false;
+      socios.value = response.data.socios;
+    })
+    .catch((error) => handleErrors(error));
 };
 
 const deleteSocio = () => {
+  isLoadingDelete.value = true;
   api
     .delete("/api/socios/" + deleteSociosId.value.id)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
+      isLoadingDelete.value = false;
       isOpenDelete.value = false;
       getSocios();
     })
     .catch((error) => {
-      if (error.response.status === 404) {
-        $q.notify({
-          type: "negative",
-          message:
-            "Socio no encontrado en la Base de Datos. Contacte con el Administrador del sistema.",
-          position: "top-right",
-          progress: true,
-        });
-      } else {
-        $q.notify({
-          type: "negative",
-          message: error.message,
-          position: "top-right",
-          progress: true,
-        });
-      }
+      handleErrors(error);
+      isLoadingDelete.value = false;
+      isOpenDelete.value = false;
     });
 };
 </script>

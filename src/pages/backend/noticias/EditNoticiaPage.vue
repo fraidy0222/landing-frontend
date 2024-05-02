@@ -120,12 +120,13 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 import rules from "src/utils/rules";
 import { authStore } from "src/stores/auth-store";
 import SkeletonCard from "components/Skeleton/SkeletonCard.vue";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
 const categorias = ref([]);
 const selectCategoria = ref([]);
@@ -134,7 +135,7 @@ const selectEstado = ref(null);
 const isLoadingInfo = ref(false);
 const isLoading = ref(false);
 
-const $q = useQuasar();
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   portada: null,
@@ -164,19 +165,31 @@ const getNoticias = () => {
       selectEstado.value = response.data.estadoId[0].estado;
       form.value.portada = null;
     })
-    .catch((error) => Promise.reject(error));
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 
 const getCategorias = () => {
-  api.get("/api/categoryNew/").then((response) => {
-    categorias.value = response.data.categoriasNoticias;
-  });
+  api
+    .get("/api/categoryNew/")
+    .then((response) => {
+      categorias.value = response.data.categoriasNoticias;
+    })
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 
 const getEstadoNoticias = () => {
-  api.get("/api/estadoNew/").then((response) => {
-    estados.value = response.data.estadoNoticias;
-  });
+  api
+    .get("/api/estadoNew/")
+    .then((response) => {
+      estados.value = response.data.estadoNoticias;
+    })
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 
 const updateNoticia = () => {
@@ -209,40 +222,12 @@ const updateNoticia = () => {
     })
     .then((response) => {
       isLoading.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
-      console.log(response.data.noticia);
-      // console.log(response.data);
+      successNotifyConfig(response.data.message);
       router.push({ path: "/noticias" });
     })
     .catch((error) => {
-      // console.log(error);
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoading.value = false;
-      }
+      handleErrors(error);
+      isLoading.value = false;
     });
 };
 </script>

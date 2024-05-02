@@ -167,13 +167,13 @@
 
 <script setup>
 import { ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { onMounted } from "vue";
 import useTable from "src/composables/useTable";
 import DeleteDialog from "components/Dialogs/DialogDelete.vue";
 import handleHttpRequest from "src/composables/handleHttpRequest";
 import ButtonTooltip from "src/components/Buttons/ButtonTooltip.vue";
+import { successNotifyConfig } from "src/utils/notification/notification";
 
 const { getPaginationLabel, textInfo } = useTable();
 
@@ -259,7 +259,6 @@ const isOpenNoticiaItem = ref(false);
 const deleteNoticiaId = ref([]);
 const categorias = ref([]);
 const estados = ref([]);
-const $q = useQuasar();
 
 const { handleErrors } = handleHttpRequest();
 
@@ -277,7 +276,9 @@ const getNoticias = () => {
       isLoading.value = false;
       noticias.value = response.data.noticias;
     })
-    .catch((error) => Promise.reject(error));
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 const checkDelete = (row) => {
   deleteNoticiaId.value = row;
@@ -285,14 +286,24 @@ const checkDelete = (row) => {
 };
 
 const getCategorias = () => {
-  api.get("/api/categoryNew/").then((response) => {
-    categorias.value = response.data;
-  });
+  api
+    .get("/api/categoryNew/")
+    .then((response) => {
+      categorias.value = response.data;
+    })
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 const getEstadoNoticias = () => {
-  api.get("/api/estadoNew/").then((response) => {
-    estados.value = response.data;
-  });
+  api
+    .get("/api/estadoNew/")
+    .then((response) => {
+      estados.value = response.data;
+    })
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 
 const deleteNoticia = () => {
@@ -301,17 +312,14 @@ const deleteNoticia = () => {
     .delete("/api/noticias/" + deleteNoticiaId.value.id)
     .then((response) => {
       isLoadingDelete.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
       isOpenDelete.value = false;
       getNoticias();
     })
     .catch((error) => {
       handleErrors(error);
+      isLoadingDelete.value = false;
+      isOpenDelete.value = false;
     });
 };
 

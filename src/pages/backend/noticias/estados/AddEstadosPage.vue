@@ -52,14 +52,16 @@
 
 <script setup>
 import { ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 import rules from "src/utils/rules";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
-const $q = useQuasar();
 const router = useRouter();
 const isLoading = ref(false);
+
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   nombre: "",
@@ -71,26 +73,11 @@ const storeEstado = () => {
   api
     .post("/api/estadoNew/", form.value)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
-
+      successNotifyConfig(response.data.message);
       router.push({ path: "/noticias-estados" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let i in error.response.data.errors) {
-          $q.notify({
-            type: "negative",
-            message: error.response.data.errors[i],
-            position: "top-right",
-            progress: true,
-          });
-        }
-      }
+      handleErrors(error);
       isLoading.value = false;
     });
 };

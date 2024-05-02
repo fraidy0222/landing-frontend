@@ -127,13 +127,13 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 import rules from "src/utils/rules";
 import { authStore } from "src/stores/auth-store";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
-const $q = useQuasar();
 const categorias = ref([]);
 const selectCategoria = ref(null);
 const estados = ref([]);
@@ -142,6 +142,8 @@ const router = useRouter();
 const isLoading = ref(false);
 
 const store = authStore();
+
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   portada: null,
@@ -178,49 +180,33 @@ const storeNoticia = () => {
     .post("/api/noticias", formData)
     .then((response) => {
       isLoading.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
-
+      successNotifyConfig(response.data.message);
       router.push({ path: "/noticias" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoading.value = false;
-      }
+      handleErrors(error);
+      isLoading.value = false;
     });
 };
 
 const getCategorias = () => {
-  api.get("/api/categoryNew/").then((response) => {
-    categorias.value = response.data.categoriasNoticias;
-  });
+  api
+    .get("/api/categoryNew/")
+    .then((response) => {
+      categorias.value = response.data.categoriasNoticias;
+    })
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 const getEstadoNoticias = () => {
-  api.get("/api/estadoNew/").then((response) => {
-    estados.value = response.data.estadoNoticias;
-  });
+  api
+    .get("/api/estadoNew/")
+    .then((response) => {
+      estados.value = response.data.estadoNoticias;
+    })
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 </script>

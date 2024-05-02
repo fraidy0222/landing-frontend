@@ -52,56 +52,33 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
-import { data } from "autoprefixer";
 import { useRouter } from "vue-router";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 import rules from "src/utils/rules";
 
-const $q = useQuasar();
 const router = useRouter();
 const estado_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
+
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   nombre: "",
   descripcion: "",
 });
 
-onMounted(() => {
-  getCategorias();
-});
-const getCategorias = () => {
-  api.get("api/estadoNew/" + estado_id).then((response) => {
-    form.value = response.data;
-  });
-};
-
 const updateEstado = () => {
   isLoading.value = true;
   api
     .put("/api/estadoNew/" + estado_id, form.value)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
-
+      successNotifyConfig(response.data.message);
       router.push({ path: "/noticias-estados" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let i in error.response.data.errors) {
-          $q.notify({
-            type: "negative",
-            message: error.response.data.errors[i],
-            position: "top-right",
-            progress: true,
-          });
-        }
-      }
+      handleErrors(error);
       isLoading.value = false;
     });
 };

@@ -69,6 +69,7 @@
     </q-table>
     <DeleteDialog
       :is-open="isOpenDelete"
+      :is-delete-loading="isLoadingDelete"
       @delete="deleteDirectivo"
       @closeDialog="isOpenDelete = false"
     />
@@ -77,12 +78,13 @@
 
 <script setup>
 import { ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { onMounted } from "vue";
 import useTable from "src/composables/useTable";
 import DeleteDialog from "src/components/Dialogs/DialogDelete.vue";
 import ButtonTooltip from "src/components/Buttons/ButtonTooltip.vue";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
 const { getPaginationLabel, textInfo } = useTable();
 
@@ -133,9 +135,11 @@ const columns = [
 
 const isLoading = ref(false);
 const isOpenDelete = ref(false);
+const isLoadingDelete = ref(false);
 const directivos = ref([]);
 const deleteDirectivosId = ref([]);
-const $q = useQuasar();
+
+const { handleErrors } = handleHttpRequest();
 
 onMounted(() => {
   getDirectivos();
@@ -148,42 +152,29 @@ const checkDelete = (row) => {
 
 const getDirectivos = () => {
   isLoading.value = true;
-  api.get("/api/directivos").then((response) => {
-    isLoading.value = false;
-    directivos.value = response.data.directivos;
-  });
+  api
+    .get("/api/directivos")
+    .then((response) => {
+      isLoading.value = false;
+      directivos.value = response.data.directivos;
+    })
+    .catch((error) => handleErrors(error));
 };
 
 const deleteDirectivo = () => {
+  isLoadingDelete.value = true;
   api
     .delete("/api/directivos/" + deleteDirectivosId.value.id + "/")
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
+      isLoadingDelete.value = false;
       isOpenDelete.value = false;
       getDirectivos();
     })
     .catch((error) => {
-      if (error.response.status === 404) {
-        $q.notify({
-          type: "negative",
-          message:
-            "Directivo no encontrado en la Base de Datos. Contacte con el Administrador del sistema.",
-          position: "top-right",
-          progress: true,
-        });
-      } else {
-        $q.notify({
-          type: "negative",
-          message: error.message,
-          position: "top-right",
-          progress: true,
-        });
-      }
+      handleErrors(error);
+      isLoadingDelete.value = false;
+      isOpenDelete.value = false;
     });
 };
 </script>

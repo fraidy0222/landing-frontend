@@ -68,16 +68,15 @@
 
 <script setup>
 import { ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { onMounted } from "vue";
 import useTable from "src/composables/useTable";
 import DeleteDialog from "components/Dialogs/DialogDelete.vue";
 import ButtonTooltip from "components/Buttons/ButtonTooltip.vue";
 import handleHttpRequest from "src/composables/handleHttpRequest";
+import { successNotifyConfig } from "src/utils/notification/notification";
 
 const { getPaginationLabel, textInfo } = useTable();
-const { handleErrors } = handleHttpRequest();
 
 const columns = [
   {
@@ -108,7 +107,8 @@ const isLoadingDelete = ref(false);
 const isOpenDelete = ref(false);
 const categorias = ref([]);
 const deleteCategoriaId = ref([]);
-const $q = useQuasar();
+
+const { handleErrors } = handleHttpRequest();
 
 onMounted(() => {
   getCategorias();
@@ -121,10 +121,16 @@ const checkDelete = (row) => {
 
 const getCategorias = () => {
   isLoading.value = true;
-  api.get("/api/categoryNew/").then((response) => {
-    isLoading.value = false;
-    categorias.value = response.data.categoriasNoticias;
-  });
+  api
+    .get("/api/categoryNew/")
+    .then((response) => {
+      isLoading.value = false;
+      categorias.value = response.data.categoriasNoticias;
+    })
+    .catch((error) => {
+      handleErrors(error);
+      isLoading.value = false;
+    });
 };
 
 const deleteNoticia = () => {
@@ -132,30 +138,15 @@ const deleteNoticia = () => {
   api
     .delete("/api/categoryNew/" + deleteCategoriaId.value.id)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
       isLoadingDelete.value = false;
       isOpenDelete.value = false;
       getCategorias();
     })
     .catch((error) => {
-      if (error.response.data.error) {
-        $q.notify({
-          type: "negative",
-          message: error.response.data.error,
-          position: "top-right",
-          progress: true,
-        });
-      }
-      handleErrors(
-        error,
-        (isLoadingDelete.value = false),
-        (isOpenDelete.value = false)
-      );
+      handleErrors(error);
+      isOpenDelete.value = false;
+      isLoadingDelete.value = false;
     });
 };
 </script>

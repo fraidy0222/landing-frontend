@@ -29,7 +29,11 @@
     </q-header>
 
     <q-drawer show-if-above side="left" bordered v-model="leftDrawerOpen">
-      <ListLinks :menuList="menuList" :check-role="checkRole" />
+      <ListLinks
+        :menuList="menuList"
+        :check-role="checkRole"
+        :is-loading="isLoading"
+      />
     </q-drawer>
 
     <q-page-container>
@@ -47,10 +51,11 @@ import { authStore } from "src/stores/auth-store";
 const leftDrawerOpen = ref(true);
 const router = useRouter();
 const store = authStore();
+const isLoading = ref(false);
 
 onMounted(() => {
   store.getUser();
-  store.getLocalData();
+  // store.getLocalData();
 });
 
 const menuList = [

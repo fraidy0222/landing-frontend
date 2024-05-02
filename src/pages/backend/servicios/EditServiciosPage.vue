@@ -69,15 +69,17 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 import rules from "src/utils/rules";
+import { successNotifyConfig } from "src/utils/notification/notification";
+import handleHttpRequest from "src/composables/handleHttpRequest";
 
-const $q = useQuasar();
 const router = useRouter();
 const servicio_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
+
+const { handleErrors } = handleHttpRequest();
 
 const form = ref({
   nombre: "",
@@ -85,17 +87,18 @@ const form = ref({
   resumen: "",
 });
 
-const img = ref(null);
-
 onMounted(() => {
   getServicio();
 });
 
 const getServicio = () => {
-  api.get("/api/servicios/" + servicio_id).then((response) => {
-    form.value = response.data.servicios;
-    form.value.imagen = null;
-  });
+  api
+    .get("/api/servicios/" + servicio_id)
+    .then((response) => {
+      form.value = response.data.servicios;
+      form.value.imagen = null;
+    })
+    .catch((error) => handleErrors(error));
 };
 
 const updateServicio = () => {
@@ -123,38 +126,13 @@ const updateServicio = () => {
     })
     .then((response) => {
       isLoading.value = false;
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
 
       router.push({ path: "/servicios" });
     })
     .catch((error) => {
-      if (error.response.data) {
-        for (let field in error.response.data.errors) {
-          if (Array.isArray(error.response.data.errors[field])) {
-            error.response.data.errors[field].forEach((errorMessage) => {
-              $q.notify({
-                type: "negative",
-                message: errorMessage,
-                position: "top-right",
-                progress: true,
-              });
-            });
-          } else {
-            $q.notify({
-              type: "negative",
-              message: error.response.data.errors[field],
-              position: "top-right",
-              progress: true,
-            });
-          }
-        }
-        isLoading.value = false;
-      }
+      handleErrors(error);
+      isLoading.value = false;
     });
 };
 </script>

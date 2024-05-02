@@ -73,6 +73,7 @@ import useTable from "src/composables/useTable";
 import DeleteDialog from "components/Dialogs/DialogDelete.vue";
 import ButtonTooltip from "components/Buttons/ButtonTooltip.vue";
 import handleHttpRequest from "src/composables/handleHttpRequest";
+import { successNotifyConfig } from "src/utils/notification/notification";
 
 const { getPaginationLabel, textInfo } = useTable();
 
@@ -107,7 +108,6 @@ const isOpenDelete = ref(false);
 const isLoadingDelete = ref(false);
 const estados = ref([]);
 const deleteEstadoId = ref([]);
-const $q = useQuasar();
 
 onMounted(() => {
   getEstados();
@@ -120,10 +120,15 @@ const checkDelete = (row) => {
 
 const getEstados = () => {
   isLoading.value = true;
-  api.get("/api/estadoNew").then((response) => {
-    isLoading.value = false;
-    estados.value = response.data.estadoNoticias;
-  });
+  api
+    .get("/api/estadoNew")
+    .then((response) => {
+      isLoading.value = false;
+      estados.value = response.data.estadoNoticias;
+    })
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 
 const deleteEstado = () => {
@@ -131,30 +136,15 @@ const deleteEstado = () => {
   api
     .delete("/api/estadoNew/" + deleteEstadoId.value.id)
     .then((response) => {
-      $q.notify({
-        type: "positive",
-        message: response.data.message,
-        position: "top-right",
-        progress: true,
-      });
+      successNotifyConfig(response.data.message);
       isLoadingDelete.value = false;
       isOpenDelete.value = false;
       getEstados();
     })
     .catch((error) => {
-      if (error.response.data.error) {
-        $q.notify({
-          type: "negative",
-          message: error.response.data.error,
-          position: "top-right",
-          progress: true,
-        });
-      }
-      handleErrors(
-        error,
-        (isLoadingDelete.value = false),
-        (isOpenDelete.value = false)
-      );
+      handleErrors(error);
+      isLoadingDelete.value = false;
+      isOpenDelete.value = false;
     });
 };
 </script>

@@ -71,10 +71,10 @@ export const authStore = defineStore("auth", {
       });
     },
 
-    getLocalData() {
-      this.authUser = JSON.parse(localStorage.getItem("authUser"));
-      this.userRole = localStorage.getItem("userRole");
-    },
+    // getLocalData() {
+    //   this.authUser = JSON.parse(localStorage.getItem("authUser"));
+    //   this.userRole = localStorage.getItem("userRole");
+    // },
   },
   persist: true,
 });
