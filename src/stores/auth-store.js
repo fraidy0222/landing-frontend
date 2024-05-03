@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { api } from "src/boot/axios";
 import handleHttpRequest from "src/composables/handleHttpRequest";
+import { Cookies } from "quasar";
 const { handleErrors, isLoading } = handleHttpRequest();
 
 export const authStore = defineStore("auth", {
@@ -17,30 +18,47 @@ export const authStore = defineStore("auth", {
 
   actions: {
     async login(data) {
-      this.isLoading = true;
-      await api.get("/sanctum/csrf-cookie").then((response) => {
-        api
-          .post("/login", data)
-          .then((response) => {
-            localStorage.setItem("auth", "true");
-            localStorage.getItem("userRole");
-            this.router.push("/administracion");
-            this.isLoading = false;
-          })
-          .catch((error) => {
-            handleErrors(error);
-            localStorage.removeItem("auth", "false");
-            localStorage.removeItem("userRole");
-            localStorage.removeItem("authUser");
-            this.isLoading = false;
-          });
+      api.get("/sanctum/csrf-cookie", {
+        withCredentials: true,
       });
-      this.isLoading = false;
+
+      this.isLoading = true;
+      await api
+        .post("/login", data, {
+          headers: {
+            Accept: "applications/json",
+            "X-XSRF-TOKEN": this.getCookie("XSRF-TOKEN"),
+          },
+          withCredentials: true,
+        })
+        .then((response) => {
+          this.isLoading = false;
+          localStorage.setItem("auth", "true");
+          localStorage.getItem("userRole");
+          this.router.push("/administracion");
+        })
+        .catch((error) => {
+          handleErrors(error);
+          localStorage.removeItem("auth", "false");
+          localStorage.removeItem("userRole");
+          localStorage.removeItem("authUser");
+          this.isLoading = true;
+        });
+    },
+
+    getCookie(cookie) {
+      return Cookies.get(cookie);
     },
 
     async getUser() {
       await api
-        .get("/api/user")
+        .get("/api/user", {
+          withCredentials: true,
+          headers: {
+            Accept: "applications/json",
+            "X-XSRF-TOKEN": this.getCookie("XSRF-TOKEN"),
+          },
+        })
         .then((response) => {
           localStorage.setItem("userRole", response.data.role);
           localStorage.setItem("authUser", JSON.stringify(this.authUser));
