@@ -18,36 +18,36 @@ export const authStore = defineStore("auth", {
 
   actions: {
     async login(data) {
-      api.get("/sanctum/csrf-cookie", {
-        withCredentials: true,
-      });
+      try {
+        // Primero, obtén la cookie CSRF
+        await api.get("/sanctum/csrf-cookie", {
+          withCredentials: true,
+        });
 
-      this.isLoading = true;
-      await api
-        .post("/login", data, {
+        // Luego, realiza el inicio de sesión
+        this.isLoading = true;
+        const response = await api.post("/login", data, {
           headers: {
-            Accept: "applications/json",
-            "X-XSRF-TOKEN": this.getCookie("XSRF-TOKEN"),
+            Accept: "application/json",
+            "X-XSRF-TOKEN": Cookies.get("XSRF-TOKEN"),
           },
           withCredentials: true,
-        })
-        .then((response) => {
-          this.isLoading = false;
-          localStorage.setItem("auth", "true");
-          localStorage.getItem("userRole");
-          this.router.push("/administracion");
-        })
-        .catch((error) => {
-          handleErrors(error);
-          localStorage.removeItem("auth", "false");
-          localStorage.removeItem("userRole");
-          localStorage.removeItem("authUser");
-          this.isLoading = true;
         });
-    },
 
-    getCookie(cookie) {
-      return Cookies.get(cookie);
+        // Si el inicio de sesión es exitoso, guarda los datos necesarios
+        this.isLoading = false;
+        localStorage.setItem("auth", "true");
+        localStorage.setItem("userRole", response.data.role);
+        this.authUser = response.data;
+        this.router.push("/administracion");
+      } catch (error) {
+        // Maneja los errores si el inicio de sesión falla
+        handleErrors(error);
+        this.isLoading = false;
+        localStorage.removeItem("auth");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("authUser");
+      }
     },
 
     async getUser() {
@@ -55,8 +55,8 @@ export const authStore = defineStore("auth", {
         .get("/api/user", {
           withCredentials: true,
           headers: {
-            Accept: "applications/json",
-            "X-XSRF-TOKEN": this.getCookie("XSRF-TOKEN"),
+            Accept: "application/json",
+            "X-XSRF-TOKEN": Cookies.get("XSRF-TOKEN"),
           },
         })
         .then((response) => {
@@ -78,15 +78,23 @@ export const authStore = defineStore("auth", {
     },
 
     logout() {
-      api.post("/logout").then((response) => {
-        this.authUser = null;
-        this.userRole = null;
-        this.isLoading = false;
-        localStorage.removeItem("userRole");
-        localStorage.removeItem("auth");
-        localStorage.removeItem("authUser");
-        this.router.push("/");
-      });
+      api
+        .post("/logout", {
+          headers: {
+            Accept: "application/json",
+            "X-XSRF-TOKEN": Cookies.get("XSRF-TOKEN"),
+          },
+          withCredentials: true,
+        })
+        .then((response) => {
+          this.authUser = null;
+          this.userRole = null;
+          this.isLoading = false;
+          localStorage.removeItem("userRole");
+          localStorage.removeItem("auth");
+          localStorage.removeItem("authUser");
+          this.router.push("/");
+        });
     },
 
     getLocalData() {

@@ -64,7 +64,7 @@
   </q-layout>
 </template>
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { authStore } from "src/stores/auth-store";
 import rules from "src/utils/rules";
 import { storeToRefs } from "pinia";
