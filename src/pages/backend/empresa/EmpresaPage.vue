@@ -21,7 +21,17 @@
         <!-- End Info Empresa -->
 
         <!-- Video Institucional -->
-        <EmpresaUploadVideo :empresa="empresa" :get-empresa="getEmpresa" />
+        <!-- <video v-if="videoUrl" ref="videoPlayer" controls>
+          <source :src="videoUrl" type="video/mp4" />
+        </video> -->
+
+        <EmpresaUploadVideo :empresa="empresa" :get-empresa="getEmpresa">
+          <template v-slot:video>
+            <video v-if="videoUrl" ref="videoPlayer" controls>
+              <source :src="videoUrl" type="video/mp4" />
+            </video>
+          </template>
+        </EmpresaUploadVideo>
         <!-- End Video Institucional -->
       </div>
     </div>
@@ -397,17 +407,12 @@
 </template>
 
 <script setup>
-import { useQuasar } from "quasar";
+import { ref, computed, onMounted } from "vue";
 import { api } from "src/boot/axios";
+import { useQuasar } from "quasar";
 import rules from "src/utils/rules";
-import { computed } from "vue";
-import { onMounted } from "vue";
-import { ref } from "vue";
 import handleHttpRequest from "src/composables/handleHttpRequest";
-import {
-  errorNotifyConfig,
-  successNotifyConfig,
-} from "src/utils/notification/notification";
+import { successNotifyConfig } from "src/utils/notification/notification";
 import EmpresaEmpty from "src/components/Empresa/EmpresaEmpty.vue";
 import EmpresaFistCard from "src/components/Empresa/EmpresaFirstCard.vue";
 import EmpresaSecondCard from "src/components/Empresa/EmpresaSecondCard.vue";
@@ -427,6 +432,9 @@ const isLoadingEditEmpresaForm = ref(false);
 const isOpenStoreInfoDialog = ref(false);
 const isLoadingStoreInfoForm = ref(false);
 const isOpenEditInfoDialog = ref(false);
+
+const videoUrl = ref(null);
+const videoPlayer = ref(null);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -481,6 +489,7 @@ const getEmpresa = async () => {
       isLoading.value = $q.loading.hide();
       isLoadingEmpresa.value = false;
       empresa.value = response.data.empresa;
+      video(empresa.value[0]);
     })
     .catch((error) => {
       handleErrors(error);
@@ -626,6 +635,24 @@ const updateInfo = () => {
     .catch((error) => {
       handleErrors(error);
       isLoadingStoreInfoForm.value = false;
+    });
+};
+
+const video = (empresa) => {
+  api
+    .get(`api/video/${empresa.id}`, {
+      responseType: "blob",
+      headers: {
+        Range: "bytes=0-",
+      },
+    })
+    .then((response) => {
+      const videoBlob = new Blob([response.data], { type: "video/mp4" });
+      videoUrl.value = URL.createObjectURL(videoBlob);
+      videoPlayer.value.src = videoUrl.value;
+    })
+    .catch((error) => {
+      console.error("Error al cargar el video:", error);
     });
 };
 </script>

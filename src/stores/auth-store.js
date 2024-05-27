@@ -93,7 +93,7 @@ export const authStore = defineStore("auth", {
           localStorage.removeItem("userRole");
           localStorage.removeItem("auth");
           localStorage.removeItem("authUser");
-          this.router.push("/");
+          this.router.push({ name: "Login" });
         });
     },
 

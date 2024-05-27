@@ -1,4 +1,13 @@
 const routes = [
+  // Landing Page
+  {
+    path: "/",
+    component: () => import("layouts/LandingPageLayout.vue"),
+    children: [
+      { path: "", component: () => import("pages/frontend/FrontendIndex.vue") },
+    ],
+  },
+
   {
     path: "/administracion",
     component: () => import("layouts/MainLayout.vue"),
@@ -276,7 +285,7 @@ const routes = [
   },
 
   {
-    path: "/",
+    path: "/login",
     name: "Login",
     component: () => import("pages/auth/AuthLogin.vue"),
   },

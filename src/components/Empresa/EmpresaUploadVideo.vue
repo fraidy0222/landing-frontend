@@ -49,12 +49,8 @@
         </div>
 
         <div v-if="props.empresa[0]?.video_institucional">
-          <q-video
-            :src="props.empresa[0]?.video_institucional"
-            :ratio="16 / 9"
-            loading="lazy"
-            :autoplay="false"
-          ></q-video>
+          <!-- <VideoComponent :empresa="props.empresa" /> -->
+          <slot name="video"></slot>
         </div>
         <div v-else>
           <div
@@ -85,7 +81,8 @@ import {
   errorNotifyConfig,
   successNotifyConfig,
 } from "src/utils/notification/notification";
-import DialogDelete from "src/components/Dialogs/DialogDelete.vue";
+import DialogDelete from "components/Dialogs/DialogDelete.vue";
+// import VideoComponent from "components/Video/VideoComponent.vue";
 
 const video_institucional = ref(null);
 const progress = ref(0);
@@ -159,7 +156,6 @@ const uploadVideo = () => {
       isUploadLoading.value = false;
 
       props.getEmpresa();
-      // getEmpresa();
     })
     .catch((error) => {
       errorNotifyConfig(error.response.data.error);
