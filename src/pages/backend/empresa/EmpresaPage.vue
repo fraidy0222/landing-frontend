@@ -507,7 +507,9 @@ const getEmpresa = async () => {
       isLoading.value = $q.loading.hide();
       isLoadingEmpresa.value = false;
       empresa.value = response.data.empresa;
-      video(empresa.value[0]);
+      if (empresa.value[0].video_institucional) {
+        video(empresa.value[0]);
+      }
     })
     .catch((error) => {
       handleErrors(error);
