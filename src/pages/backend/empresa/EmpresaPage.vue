@@ -27,8 +27,14 @@
 
         <EmpresaUploadVideo :empresa="empresa" :get-empresa="getEmpresa">
           <template v-slot:video>
-            <video v-if="videoUrl" ref="videoPlayer" controls>
-              <source :src="videoUrl" type="video/mp4" />
+            <video
+              v-if="videoUrl"
+              ref="videoPlayer"
+              controls
+              @loadedmetadata="onVideoLoaded"
+              @canplaythrough="onVideoCanPlayThrough"
+            >
+              <source :src="currentVideoUrl" type="video/mp4" />
             </video>
           </template>
         </EmpresaUploadVideo>
@@ -435,6 +441,7 @@ const isOpenEditInfoDialog = ref(false);
 
 const videoUrl = ref(null);
 const videoPlayer = ref(null);
+const isLoadingVideo = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -459,6 +466,17 @@ const formInfo = ref({
 
 onMounted(() => {
   getEmpresa();
+});
+
+// onUnmounted(() => {
+//   console.log(videoUrl.value);
+//   if (videoUrl.value) {
+//     URL.revokeObjectURL(videoUrl.value);
+//   }
+// });
+
+const currentVideoUrl = computed(() => {
+  return videoUrl.value;
 });
 
 const hasEmpresa = computed(() => {
@@ -638,6 +656,15 @@ const updateInfo = () => {
     });
 };
 
+const onVideoLoaded = () => {
+  isLoadingVideo.value = true;
+  console.log("Video metadata loaded");
+};
+
+const onVideoCanPlayThrough = () => {
+  console.log("Video can play through");
+};
+
 const video = (empresa) => {
   api
     .get(`api/video/${empresa.id}`, {
@@ -649,7 +676,7 @@ const video = (empresa) => {
     .then((response) => {
       const videoBlob = new Blob([response.data], { type: "video/mp4" });
       videoUrl.value = URL.createObjectURL(videoBlob);
-      videoPlayer.value.src = videoUrl.value;
+      // videoPlayer.value.src = videoUrl.value;
     })
     .catch((error) => {
       console.error("Error al cargar el video:", error);

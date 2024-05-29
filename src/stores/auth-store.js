@@ -1,13 +1,15 @@
 import { defineStore } from "pinia";
 import { api } from "src/boot/axios";
 import handleHttpRequest from "src/composables/handleHttpRequest";
-import { Cookies } from "quasar";
-const { handleErrors, isLoading } = handleHttpRequest();
+import { Cookies, useQuasar } from "quasar";
+
+const { handleErrors } = handleHttpRequest();
 
 export const authStore = defineStore("auth", {
   state: () => ({
     authUser: null,
-    isLoading: isLoading,
+    isLoading: false,
+    isLoadingUser: false,
     userRole: null,
   }),
 
@@ -51,6 +53,7 @@ export const authStore = defineStore("auth", {
     },
 
     async getUser() {
+      this.isLoadingUser = true;
       await api
         .get("/api/user", {
           withCredentials: true,
@@ -60,6 +63,7 @@ export const authStore = defineStore("auth", {
           },
         })
         .then((response) => {
+          this.isLoadingUser = false;
           localStorage.setItem("userRole", response.data.role);
           localStorage.setItem("authUser", JSON.stringify(this.authUser));
           this.authUser = response.data;
@@ -72,6 +76,7 @@ export const authStore = defineStore("auth", {
             this.authUser = null;
             this.userRole = null;
             this.isLoading = false;
+            this.isLoadingUser = false;
             this.router.push({ name: "Login" });
           }
         });
@@ -90,6 +95,7 @@ export const authStore = defineStore("auth", {
           this.authUser = null;
           this.userRole = null;
           this.isLoading = false;
+          this.isLoadingUser = false;
           localStorage.removeItem("userRole");
           localStorage.removeItem("auth");
           localStorage.removeItem("authUser");
@@ -97,10 +103,10 @@ export const authStore = defineStore("auth", {
         });
     },
 
-    getLocalData() {
-      this.authUser = JSON.parse(localStorage.getItem("authUser"));
-      this.userRole = localStorage.getItem("userRole");
-    },
+    // getLocalData() {
+    //     this.authUser = JSON.parse(localStorage.getItem("authUser"));
+    //     this.userRole = localStorage.getItem("userRole");
+    // },
   },
   persist: true,
 });

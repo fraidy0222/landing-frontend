@@ -1,5 +1,11 @@
 <template>
-  <q-layout view="hHh Lpr lff">
+  <div
+    v-if="store.isLoadingUser"
+    class="tw-flex tw-items-center tw-justify-center tw-h-screen"
+  >
+    Cargando....
+  </div>
+  <q-layout v-else view="hHh Lpr lff">
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
@@ -50,7 +56,6 @@ const store = authStore();
 
 onMounted(() => {
   store.getUser();
-  store.getLocalData();
 });
 
 const menuList = [
