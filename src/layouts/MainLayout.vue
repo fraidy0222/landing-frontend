@@ -92,23 +92,23 @@ const menuList = [
   },
   {
     icon: "newspaper",
-    label: "Social OK",
+    label: "Social",
     role: ["Editor"],
     children: [
       { label: "Noticias", path: "/noticias", role: ["Editor"] },
-      { label: "Categorias", path: "/noticias-categorias", role: ["Editor"] },
+      { label: "Categorías", path: "/noticias-categorias", role: ["Editor"] },
       { label: "Estados", path: "/noticias-estados", role: ["Editor"] },
     ],
   },
   {
     icon: "quiz",
-    label: "Preguntas Frecuentes OK",
+    label: "Preguntas Frecuentes",
     path: "/preguntas-frecuentes",
     role: ["Editor"],
   },
   {
     icon: "link",
-    label: "Pie de Página OK",
+    label: "Pie de Página",
     role: ["Editor"],
     children: [
       {
@@ -121,7 +121,7 @@ const menuList = [
   },
   {
     icon: "comment",
-    label: "Comentarios OK",
+    label: "Comentarios",
     role: ["Editor"],
     children: [
       { label: "Noticias", path: "/comentarios-noticias", role: ["Editor"] },
@@ -129,19 +129,19 @@ const menuList = [
   },
   {
     icon: "handshake",
-    label: "Socios OK",
+    label: "Socios",
     path: "/socios",
     role: ["Editor"],
   },
   {
     icon: "apps",
-    label: "Servicios OK",
+    label: "Servicios",
     path: "/servicios",
     role: ["Editor"],
   },
   {
     icon: "group",
-    label: "Directivos OK",
+    label: "Directivos",
     path: "/directivos",
     role: ["Editor"],
   },
