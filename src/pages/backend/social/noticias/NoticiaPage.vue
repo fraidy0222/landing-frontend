@@ -124,34 +124,39 @@
       :isDeleteLoading="isLoadingDelete"
     />
 
+    <!-- Show Info Noticias -->
     <q-dialog v-model="isOpenNoticiaItem">
-      <q-card class="my-card">
-        <img src="https://cdn.quasar.dev/img/mountains.jpg" />
+      <q-card class="tw-relative">
+        <div class="tw-absolute tw-top-2 tw-right-3">
+          <q-btn
+            icon="close"
+            round
+            class="tw-bg-white"
+            @click="isOpenNoticiaItem = false"
+          ></q-btn>
+        </div>
+        <img :src="noticias[0].portada" :height="200" />
         <div class="row items-center q-mt-xs q-px-md">
-          <div>{{ formatDate(noticiaItem.fecha_creacion) }}</div>
+          <div class="tw-text-gray700">{{ noticiaItem.fecha_creacion }}</div>
           <div class="row items-center q-ml-md">
             <div
-              class="tw-rounded-full tw-text-black tw-text-sm tw-bg-gray-50 tw-px-3 tw-py-1.5 tw-font-medium tw-text-gray-600 hover:tw-bg-gray-100"
+              class="tw-rounded-full tw-text-sm tw-bg-gray200 tw-px-2 tw-py-0.5 tw-font-medium hover:tw-bg-gray100"
             >
-              Explosiones
+              {{ noticias[0].categorias[0].nombre }}
             </div>
           </div>
         </div>
         <q-card-section class="q-pt-sm">
           <div class="text-h6">{{ noticiaItem.titulo }}</div>
-          <div class="text-subtitle2 tw-text-gray-500 tw-mt-2">
+          <div class="text-subtitle2 tw-text-gray700 tw-mt-2">
             {{ noticiaItem.descripcion }}
           </div>
         </q-card-section>
         <q-card-section>
-          <div class="tw-relative tw-flex tw-items-center tw-gap-x-4">
-            <img
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-              alt=""
-              class="tw-h-10 tw-w-10 tw-rounded-full tw-bg-gray-50"
-            />
+          <div class="tw-relative tw-flex tw-items-center tw-gap-x-2">
+            <div class="tw-text-gray600">Publicado por:</div>
             <div class="tw-text-sm tw-leading-6">
-              <p class="tw-font-semibold tw-text-gray-900">
+              <p class="tw-font-medium tw-text-gray800">
                 <a>
                   <span class="tw-absolute tw-inset-0" />
                   Usuario
@@ -164,6 +169,12 @@
     </q-dialog>
   </div>
 </template>
+
+<style scoped>
+.q-card img {
+  height: 400px;
+}
+</style>
 
 <script setup>
 import { ref } from "vue";
@@ -325,9 +336,6 @@ const deleteNoticia = () => {
 
 const showNoticiasItem = (item) => {
   noticiaItem.value = item;
-  noticiaItem.value.fecha_creacion = dayjs(item.fecha_creacion).format(
-    "MMM D, YYYY"
-  );
   isOpenNoticiaItem.value = true;
 };
 </script>
