@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isLoading"></div>
+  <div v-if="isLoadingEmpresa">Cargando Empresa</div>
   <div v-else-if="hasEmpresa">
     <EmpresaEmpty @click="isOpenStoreEmpresaDialog = true"></EmpresaEmpty>
   </div>
@@ -21,10 +21,6 @@
         <!-- End Info Empresa -->
 
         <!-- Video Institucional -->
-        <!-- <video v-if="videoUrl" ref="videoPlayer" controls>
-          <source :src="videoUrl" type="video/mp4" />
-        </video> -->
-
         <EmpresaUploadVideo
           :empresa="empresa"
           :get-empresa="getEmpresa"
@@ -420,7 +416,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, provide } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { api } from "src/boot/axios";
 import { useQuasar } from "quasar";
 import rules from "src/utils/rules";
@@ -497,19 +493,12 @@ const hasValue = computed(() => {
 });
 
 const getEmpresa = async () => {
-  // isLoading.value = true;
-  isLoading.value = $q.loading.show({
-    message: "Cargando. Por favor espere...",
-    background: "gray-10",
-  });
   isLoadingEmpresa.value = true;
   api
     .get("/api/empresa")
     .then((response) => {
-      isLoading.value = $q.loading.hide();
       isLoadingEmpresa.value = false;
       empresa.value = response.data.empresa;
-      console.log(videoUrl.value);
       if (empresa.value[0].video_institucional) {
         video(empresa.value[0]);
       }
@@ -588,8 +577,6 @@ const updateEmpresa = async () => {
       }
     }
   });
-
-  // console.log(formEmpresa.value);
 
   isLoadingEditEmpresaForm.value = true;
   api
@@ -678,10 +665,6 @@ const video = (empresa) => {
     .then((response) => {
       const videoBlob = new Blob([response.data], { type: "video/mp4" });
 
-      if (videoUrl.value) {
-        URL.revokeObjectURL(videoUrl.value);
-      }
-      console.log(videoUrl.value);
       videoUrl.value = URL.createObjectURL(videoBlob);
     })
     .catch((error) => {
