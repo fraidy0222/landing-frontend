@@ -140,9 +140,11 @@
           <div class="tw-text-gray700">{{ noticiaItem.fecha_creacion }}</div>
           <div class="row items-center q-ml-md">
             <div
+              v-for="categoria in noticias[0].categorias"
+              :key="categoria.id"
               class="tw-rounded-full tw-text-sm tw-bg-gray200 tw-px-2 tw-py-0.5 tw-font-medium hover:tw-bg-gray100"
             >
-              {{ noticias[0].categorias[0].nombre }}
+              {{ categoria.nombre }}
             </div>
           </div>
         </div>
