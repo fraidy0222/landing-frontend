@@ -68,19 +68,22 @@ const routes = [
         path: "/noticias",
         name: "Noticias",
         meta: { roles: ["Editor"] },
-        component: () => import("pages/backend/noticias/NoticiaPage.vue"),
+        component: () =>
+          import("pages/backend/social/noticias/NoticiaPage.vue"),
       },
       {
         path: "/crear-noticia",
         name: "Add Noticia",
         meta: { roles: ["Editor"] },
-        component: () => import("pages/backend/noticias/AddNoticiasPage.vue"),
+        component: () =>
+          import("pages/backend/social/noticias/AddNoticiasPage.vue"),
       },
       {
         path: "/editar-noticia/:id",
         name: "Editar Noticia",
         meta: { roles: ["Editor"] },
-        component: () => import("pages/backend/noticias/EditNoticiaPage.vue"),
+        component: () =>
+          import("pages/backend/social/noticias/EditNoticiaPage.vue"),
       },
 
       // Noticas Categorias
@@ -89,21 +92,21 @@ const routes = [
         name: "categorias",
         meta: { roles: ["Editor"] },
         component: () =>
-          import("pages/backend/noticias/categorias/CategoriasPage.vue"),
+          import("pages/backend/social/categorias/CategoriasPage.vue"),
       },
       {
         path: "/crear-noticias-categoria",
         name: "add-categoria",
         meta: { roles: ["Editor"] },
         component: () =>
-          import("pages/backend/noticias/categorias/AddCategoriasPage.vue"),
+          import("pages/backend/social/categorias/AddCategoriasPage.vue"),
       },
       {
         path: "/editar-noticias-categoria/:id",
         name: "edit-categoria",
         meta: { roles: ["Editor"] },
         component: () =>
-          import("pages/backend/noticias/categorias/EditCategoriasPage.vue"),
+          import("pages/backend/social/categorias/EditCategoriasPage.vue"),
       },
 
       // Noticas Estado
@@ -111,22 +114,21 @@ const routes = [
         path: "/noticias-estados",
         name: "Estados",
         meta: { roles: ["Editor"] },
-        component: () =>
-          import("pages/backend/noticias/estados/EstadosPage.vue"),
+        component: () => import("pages/backend/social/estados/EstadosPage.vue"),
       },
       {
         path: "/crear-noticias-estados",
         name: "add-estados",
         meta: { roles: ["Editor"] },
         component: () =>
-          import("pages/backend/noticias/estados/AddEstadosPage.vue"),
+          import("pages/backend/social/estados/AddEstadosPage.vue"),
       },
       {
         path: "/editar-noticias-estados/:id",
         name: "edit-estados",
         meta: { roles: ["Editor"] },
         component: () =>
-          import("pages/backend/noticias/estados/EditEstadosPage.vue"),
+          import("pages/backend/social/estados/EditEstadosPage.vue"),
       },
 
       // Gestion Socios
