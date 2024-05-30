@@ -1,5 +1,13 @@
 <template>
-  <div v-if="isLoadingEmpresa">Cargando Empresa</div>
+  <div
+    v-if="isLoadingEmpresa"
+    class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-screen"
+  >
+    <div>
+      <q-spinner-cube color="primary" size="4em" />
+    </div>
+    <div class="tw-text-lg">Cargando. Por favor espere...</div>
+  </div>
   <div v-else-if="hasEmpresa">
     <EmpresaEmpty @click="isOpenStoreEmpresaDialog = true"></EmpresaEmpty>
   </div>

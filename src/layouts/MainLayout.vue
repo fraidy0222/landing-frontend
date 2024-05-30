@@ -1,23 +1,16 @@
 <template>
-  <div
-    v-if="store.isLoadingUser"
-    class="tw-flex tw-items-center tw-justify-center tw-h-screen"
-  >
-    Cargando....
-  </div>
+  <div v-if="getUserLoading"></div>
   <q-layout v-else view="hHh Lpr lff">
     <q-header elevated class="bg-primary text-white">
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
         <q-toolbar-title>
-          <div @click="router.push({ path: '/administracion' })">
-            <q-avatar>
-              <img
-                src="https://cdn.quasar.dev/logo-v2/svg/logo-mono-white.svg"
-              />
-            </q-avatar>
-            Title
+          <div
+            @click="router.push({ path: '/administracion' })"
+            class="tw-cursor-pointer"
+          >
+            Administración
           </div>
         </q-toolbar-title>
 
@@ -46,16 +39,29 @@
 
 <script setup>
 import ListLinks from "src/components/List/ListLinks.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { authStore } from "src/stores/auth-store";
+import { useQuasar } from "quasar";
 
 const leftDrawerOpen = ref(true);
 const router = useRouter();
 const store = authStore();
+const $q = useQuasar();
 
 onMounted(() => {
   store.getUser();
+});
+
+const getUserLoading = computed(() => {
+  if (store.isLoadingUser) {
+    return $q.loading.show({
+      message: "Cargando. Por favor espere...",
+    });
+  } else {
+    $q.loading.hide();
+    return false;
+  }
 });
 
 const menuList = [
