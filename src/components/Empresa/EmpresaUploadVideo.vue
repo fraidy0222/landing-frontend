@@ -21,7 +21,7 @@
           <q-btn
             v-show="props.empresa[0]?.video_institucional"
             icon="delete"
-            @click="isOpenDeleteVideo = true"
+            @click="props.openDeleteDialog"
             color="negative"
             label="Eliminar"
             outline
@@ -65,10 +65,10 @@
 
   <!-- Delete Video Dialog -->
   <DialogDelete
-    :is-open="isOpenDeleteVideo"
-    :is-delete-loading="isLoadingDeleteVideo"
-    @closeDialog="isOpenDeleteVideo = false"
-    @delete="deleteVideo"
+    :is-open="props.isOpenDeleteVideo"
+    :is-delete-loading="props.isLoadingDeleteVideo"
+    @closeDialog="props.isOpenDeleteVideo"
+    @delete="props.deleteVideo"
     body-label="¿Estás seguro de eliminar este video?"
   />
 </template>
@@ -76,7 +76,7 @@
 <script setup>
 import { api } from "src/boot/axios";
 import { ref } from "vue";
-import handleHttpRequest from "src/composables/handleHttpRequest";
+// import handleHttpRequest from "src/composables/handleHttpRequest";
 import {
   errorNotifyConfig,
   successNotifyConfig,
@@ -88,10 +88,6 @@ const video_institucional = ref(null);
 const progress = ref(0);
 const progressLabel = ref("");
 const isUploadLoading = ref(false);
-const isOpenDeleteVideo = ref(false);
-const isLoadingDeleteVideo = ref(false);
-
-const { handleErrors } = handleHttpRequest();
 
 const props = defineProps({
   title: {
@@ -107,6 +103,18 @@ const props = defineProps({
     default: "No existe video",
   },
   getEmpresa: Function,
+
+  // Delete Video Props
+  isLoadingDeleteVideo: {
+    type: Boolean,
+    default: false,
+  },
+  isOpenDeleteVideo: {
+    type: Boolean,
+    default: false,
+  },
+  deleteVideo: Function,
+  openDeleteDialog: Function,
 });
 
 const uploadVideo = () => {
@@ -162,29 +170,6 @@ const uploadVideo = () => {
       isUploadLoading.value = false;
       video_institucional.value = null;
       progress.value = 0;
-    });
-};
-
-const deleteVideo = async () => {
-  isLoadingDeleteVideo.value = true;
-  await api
-    .delete(
-      "/api/deleteVideo/" + props.empresa[0].id,
-      props.empresa[0].video_institucional
-    )
-    .then((response) => {
-      successNotifyConfig(response.data.message);
-      props.getEmpresa();
-      isLoadingDeleteVideo.value = false;
-      isOpenDeleteVideo.value = false;
-      isUploadLoading.value = false;
-      video_institucional.value = null;
-      progress.value = 0;
-    })
-    .catch((error) => {
-      handleErrors(error);
-      isOpenDeleteVideo.value = false;
-      isLoadingDeleteVideo.value = false;
     });
 };
 </script>

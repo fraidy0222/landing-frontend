@@ -25,7 +25,14 @@
           <source :src="videoUrl" type="video/mp4" />
         </video> -->
 
-        <EmpresaUploadVideo :empresa="empresa" :get-empresa="getEmpresa">
+        <EmpresaUploadVideo
+          :empresa="empresa"
+          :get-empresa="getEmpresa"
+          :is-loading-delete-video="isLoadingDeleteVideo"
+          :is-open-delete-video="isOpenDeleteVideo"
+          :delete-video="deleteVideo"
+          :open-delete-dialog="openDeleteDialog"
+        >
           <template v-slot:video>
             <video
               v-if="videoUrl"
@@ -413,7 +420,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, provide } from "vue";
 import { api } from "src/boot/axios";
 import { useQuasar } from "quasar";
 import rules from "src/utils/rules";
@@ -439,9 +446,13 @@ const isOpenStoreInfoDialog = ref(false);
 const isLoadingStoreInfoForm = ref(false);
 const isOpenEditInfoDialog = ref(false);
 
-const videoUrl = ref(null);
+const videoUrl = ref("");
 const videoPlayer = ref(null);
 const isLoadingVideo = ref(false);
+
+// Delete Video Props
+const isLoadingDeleteVideo = ref(false);
+const isOpenDeleteVideo = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -467,13 +478,6 @@ const formInfo = ref({
 onMounted(() => {
   getEmpresa();
 });
-
-// onUnmounted(() => {
-//   console.log(videoUrl.value);
-//   if (videoUrl.value) {
-//     URL.revokeObjectURL(videoUrl.value);
-//   }
-// });
 
 const currentVideoUrl = computed(() => {
   return videoUrl.value;
@@ -502,11 +506,10 @@ const getEmpresa = async () => {
   api
     .get("/api/empresa")
     .then((response) => {
-      $q.loading.hide();
-      // isLoading.value = false;
       isLoading.value = $q.loading.hide();
       isLoadingEmpresa.value = false;
       empresa.value = response.data.empresa;
+      console.log(videoUrl.value);
       if (empresa.value[0].video_institucional) {
         video(empresa.value[0]);
       }
@@ -660,12 +663,9 @@ const updateInfo = () => {
 
 const onVideoLoaded = () => {
   isLoadingVideo.value = true;
-  console.log("Video metadata loaded");
 };
 
-const onVideoCanPlayThrough = () => {
-  console.log("Video can play through");
-};
+const onVideoCanPlayThrough = () => {};
 
 const video = (empresa) => {
   api
@@ -677,11 +677,40 @@ const video = (empresa) => {
     })
     .then((response) => {
       const videoBlob = new Blob([response.data], { type: "video/mp4" });
+
+      if (videoUrl.value) {
+        URL.revokeObjectURL(videoUrl.value);
+      }
+      console.log(videoUrl.value);
       videoUrl.value = URL.createObjectURL(videoBlob);
-      // videoPlayer.value.src = videoUrl.value;
     })
     .catch((error) => {
       console.error("Error al cargar el video:", error);
     });
+};
+
+const deleteVideo = async () => {
+  isLoadingDeleteVideo.value = true;
+  await api
+    .delete(
+      "/api/deleteVideo/" + empresa.value[0].id,
+      empresa.value[0].video_institucional
+    )
+    .then((response) => {
+      successNotifyConfig(response.data.message);
+      getEmpresa();
+      isLoadingDeleteVideo.value = false;
+      isOpenDeleteVideo.value = false;
+      videoUrl.value = null;
+    })
+    .catch((error) => {
+      handleErrors(error);
+      isOpenDeleteVideo.value = false;
+      isLoadingDeleteVideo.value = false;
+    });
+};
+
+const openDeleteDialog = () => {
+  isOpenDeleteVideo.value = true;
 };
 </script>
