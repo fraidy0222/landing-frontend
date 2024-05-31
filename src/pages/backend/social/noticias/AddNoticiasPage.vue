@@ -5,7 +5,7 @@
       <q-card-section>
         <q-form @submit="storeNoticia">
           <div class="row q-col-gutter-md q-mb-md">
-            <div class="col-xs-12 col-sm-6">
+            <div class="col-xs-12 col-sm-4">
               <q-file
                 name="logo"
                 outlined
@@ -21,35 +21,7 @@
                 </template>
               </q-file>
             </div>
-            <div class="col-xs-12 col-sm-6">
-              <q-input
-                outlined
-                v-model="form.titulo"
-                label="Título"
-                type="text"
-                lazy-rules
-                :rules="[rules.required]"
-              />
-            </div>
-            <div class="col-xs-12 col-sm-6">
-              <q-input
-                outlined
-                v-model="form.subtitulo"
-                label="Subtítulo"
-                type="text"
-                lazy-rules
-              />
-            </div>
-            <div class="col-xs-12 col-sm-6">
-              <q-input
-                outlined
-                v-model="form.descripcion"
-                label="Descripción"
-                type="text"
-                lazy-rules
-              />
-            </div>
-            <div class="col-xs-12 col-sm-6">
+            <div class="col-xs-12 col-sm-4">
               <q-select
                 outlined
                 v-model="selectCategoria"
@@ -74,7 +46,7 @@
                 </template>
               </q-select>
             </div>
-            <div class="col-xs-12 col-sm-6">
+            <div class="col-xs-12 col-sm-4">
               <q-select
                 outlined
                 v-model="selectEstado"
@@ -97,6 +69,33 @@
                   </q-item>
                 </template>
               </q-select>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+              <q-input
+                outlined
+                v-model="form.titulo"
+                label="Título"
+                type="text"
+                lazy-rules
+                :rules="[rules.required]"
+              />
+            </div>
+            <div class="col-xs-12 col-sm-6">
+              <q-input
+                outlined
+                v-model="form.subtitulo"
+                label="Subtítulo"
+                type="text"
+                lazy-rules
+              />
+            </div>
+            <div class="col-xs-12 col-sm-12">
+              <q-editor
+                v-model="form.descripcion"
+                min-height="5rem"
+                placeholder="Descripción"
+                style="font-size: 16px"
+              />
             </div>
           </div>
 

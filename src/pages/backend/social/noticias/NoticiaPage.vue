@@ -36,7 +36,7 @@
       </template>
       <template v-slot:body-cell-descripcion="props">
         <td>
-          <div class="tw-w-52 ellipsis">{{ props.row.descripcion }}</div>
+          <div class="tw-w-52 ellipsis" v-html="props.row.descripcion"></div>
         </td>
       </template>
 

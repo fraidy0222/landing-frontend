@@ -15,19 +15,70 @@
       <q-card-section>
         <q-form @submit="updateNoticia">
           <div class="row q-col-gutter-md q-mb-md">
-            <div class="col-xs-12 col-sm-6">
+            <div class="col-xs-12 col-sm-4">
               <q-file
                 name="logo"
                 outlined
                 v-model="form.portada"
                 label="Portada"
                 clearable
-                counter
                 accept="image/*"
+                max-files="1"
+                counter
               >
                 <template v-slot:prepend>
-                  <q-icon name="attach_file" /> </template
-              ></q-file>
+                  <q-icon name="attach_file" />
+                </template>
+              </q-file>
+            </div>
+            <div class="col-xs-12 col-sm-4">
+              <q-select
+                outlined
+                v-model="selectCategoria"
+                transition-show="jump-up"
+                transition-hide="jump-up"
+                label="Seleccione una categoría"
+                option-value="id"
+                option-label="nombre"
+                :options="categorias"
+                emit-value
+                map-options
+                multiple
+                clearable
+                :rules="[rules.requiredSelect]"
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey">
+                      No existen elementos
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+            </div>
+            <div class="col-xs-12 col-sm-4">
+              <q-select
+                outlined
+                v-model="selectEstado"
+                transition-show="jump-up"
+                transition-hide="jump-up"
+                label="Seleccione un estado"
+                option-value="id"
+                option-label="nombre"
+                :options="estados"
+                emit-value
+                map-options
+                clearable
+                :rules="[rules.requiredSelect]"
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey">
+                      No existen elementos
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
             </div>
             <div class="col-xs-12 col-sm-6">
               <q-input
@@ -48,56 +99,26 @@
                 lazy-rules
               />
             </div>
-            <div class="col-xs-12 col-sm-6">
-              <q-input
-                outlined
+            <div class="col-xs-12 col-sm-12">
+              <q-editor
                 v-model="form.descripcion"
-                label="Descripción"
-                type="text"
-                lazy-rules
+                min-height="5rem"
+                placeholder="Descripción"
+                style="font-size: 16px"
+                :dense="$q.screen.lt.sm"
+                :definitions="definitions"
+                :toolbar="toolbar"
+                :fonts="{
+                  arial: 'Arial',
+                  arial_black: 'Arial Black',
+                  comic_sans: 'Comic Sans MS',
+                  courier_new: 'Courier New',
+                  impact: 'Impact',
+                  lucida_grande: 'Lucida Grande',
+                  times_new_roman: 'Times New Roman',
+                  verdana: 'Verdana',
+                }"
               />
-            </div>
-            <div class="col-xs-12 col-sm-6">
-              <q-select
-                outlined
-                v-model="selectCategoria"
-                transition-show="jump-up"
-                transition-hide="jump-up"
-                label="Seleccione una categoría"
-                option-value="id"
-                option-label="nombre"
-                :options="categorias"
-                multiple
-                :rules="[rules.requiredSelect]"
-              >
-                <template v-slot:no-option>
-                  <q-item>
-                    <q-item-section class="text-grey">
-                      No existen elementos
-                    </q-item-section>
-                  </q-item>
-                </template>
-              </q-select>
-            </div>
-            <div class="col-xs-12 col-sm-6">
-              <q-select
-                outlined
-                v-model="selectEstado"
-                transition-show="jump-up"
-                transition-hide="jump-up"
-                label="Seleccione un estado"
-                option-value="id"
-                option-label="nombre"
-                :options="estados"
-              >
-                <template v-slot:no-option>
-                  <q-item>
-                    <q-item-section class="text-grey">
-                      No existen elementos
-                    </q-item-section>
-                  </q-item>
-                </template>
-              </q-select>
             </div>
           </div>
 
@@ -134,6 +155,7 @@ import rules from "src/utils/rules";
 import { authStore } from "src/stores/auth-store";
 import { successNotifyConfig } from "src/utils/notification/notification";
 import handleHttpRequest from "src/composables/handleHttpRequest";
+import { useQuasar } from "quasar";
 
 const categorias = ref([]);
 const selectCategoria = ref([]);
@@ -154,6 +176,120 @@ const form = ref({
 const store = authStore();
 const router = useRouter();
 const noticia_id = router.currentRoute.value.params.id;
+const $q = useQuasar();
+
+const definitions = {
+  save: {
+    tip: "Save your work",
+    icon: "save",
+    label: "Save",
+  },
+  upload: {
+    tip: "Upload to cloud",
+    icon: "cloud_upload",
+    label: "Upload",
+  },
+  bold: {
+    tip: "Negrita",
+    icon: "format_bold",
+  },
+  italic: {
+    tip: "Cursiva",
+    icon: "format_italic",
+  },
+  strike: {
+    tip: "Tachado",
+    icon: "strikethrough_s",
+  },
+  underline: {
+    tip: "Subrayado",
+    icon: "format_underlined",
+  },
+  hr: {
+    tip: "Insertar línea horizontal",
+    icon: "horizontal_rule",
+  },
+  link: {
+    tip: "Vínculo",
+    icon: "link",
+  },
+  print: {
+    tip: "Imprimir",
+    icon: "print",
+  },
+  fullscreen: {
+    tip: "Pantalla completa",
+    icon: "fullscreen",
+  },
+  // unordered: {
+  //   tip: "Viñetas",
+  // },
+  // ordered: {
+  //   tip: "Numeración",
+  // },
+};
+
+const toolbar = [
+  [
+    {
+      label: "Alinear",
+      icon: "format_align_left",
+      fixedLabel: true,
+      list: "only-icons",
+      options: ["left", "center", "right", "justify"],
+    },
+  ],
+  ["bold", "italic", "strike", "underline"],
+  ["hr", "link", "print", "fullscreen"],
+  [
+    {
+      label: "Formato",
+      icon: "text_fields",
+      fixedLabel: true,
+      fixedIcon: true,
+      list: "no-icons",
+      options: ["p", "h1", "h2", "h3", "h4", "h5", "h6", "code"],
+    },
+    {
+      label: "Tamaño de letra",
+      icon: $q.iconSet.editor.fontSize,
+      fixedLabel: true,
+      fixedIcon: true,
+      list: "no-icons",
+      options: [
+        "size-1",
+        "size-2",
+        "size-3",
+        "size-4",
+        "size-5",
+        "size-6",
+        "size-7",
+      ],
+    },
+    {
+      label: "Tipo de fuente",
+      icon: $q.iconSet.editor.font,
+      fixedIcon: true,
+      fixedLabel: true,
+      list: "no-icons",
+      options: [
+        "arial",
+        "arial_black",
+        "comic_sans",
+        "courier_new",
+        "impact",
+        "lucida_grande",
+        "times_new_roman",
+        "verdana",
+      ],
+    },
+    "removeFormat",
+  ],
+  ["quote", "unordered", "ordered", "outdent", "indent"],
+
+  ["undo", "redo"],
+  ["viewsource"],
+];
 
 onMounted(() => {
   getNoticias();

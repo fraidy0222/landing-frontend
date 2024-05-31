@@ -15,7 +15,7 @@
     >
       <template v-slot:body-cell-descripcion="props">
         <td>
-          <div class="tw-w-60 tw-ellipsis tw-text-primary">
+          <div class="tw-w-52 tw-ellipsis">
             {{ props.row.descripcion }}
           </div>
         </td>

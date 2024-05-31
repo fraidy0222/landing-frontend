@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { api } from "src/boot/axios";
 import handleHttpRequest from "src/composables/handleHttpRequest";
-import { Cookies, useQuasar } from "quasar";
+import { Cookies } from "quasar";
 
 const { handleErrors } = handleHttpRequest();
 
@@ -108,5 +108,4 @@ export const authStore = defineStore("auth", {
     //     this.userRole = localStorage.getItem("userRole");
     // },
   },
-  persist: true,
 });
