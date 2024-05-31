@@ -1,5 +1,15 @@
 <template>
-  <div class="q-pa-md">
+  <div
+    v-if="isLoading"
+    class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-screen"
+  >
+    <div>
+      <q-spinner-cube color="primary" size="4em" />
+    </div>
+    <div class="tw-text-lg">Cargando. Por favor espere...</div>
+  </div>
+
+  <div v-else class="q-pa-md">
     <q-card>
       <q-card-section class="text-h6"> Editar Usuario </q-card-section>
       <q-card-section>
@@ -156,21 +166,18 @@ onMounted(() => {
 });
 
 const getUser = () => {
-  isLoading.value = $q.loading.show({
-    message: "Cargando. Por favor espere...",
-    background: "gray-10",
-  });
+  isLoading.value = true;
   api
     .get(`/api/users/` + user_id)
     .then((response) => {
+      isLoading.value = false;
       form.value = response.data.user;
       selectRole.value = response.data.user.role[0];
-      $q.loading.hide();
       form.value.password = "";
     })
     .catch((error) => {
       handleErrors(error);
-      $q.loading.hide();
+      isLoading.value = false;
     });
 };
 

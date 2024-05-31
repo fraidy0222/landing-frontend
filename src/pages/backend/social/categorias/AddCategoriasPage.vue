@@ -16,7 +16,12 @@
               />
             </div>
             <div class="col-12">
-              <q-editor v-model="form.descripcion" min-height="5rem" />
+              <q-editor
+                v-model="form.descripcion"
+                min-height="5rem"
+                placeholder="Descripción"
+                style="font-size: 16px"
+              />
             </div>
           </div>
 

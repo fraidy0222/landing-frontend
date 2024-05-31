@@ -1,5 +1,15 @@
 <template>
-  <div class="q-pa-md">
+  <div
+    v-if="isLoadingCategoriaEnlaces"
+    class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-screen"
+  >
+    <div>
+      <q-spinner-cube color="primary" size="4em" />
+    </div>
+    <div class="tw-text-lg">Cargando. Por favor espere...</div>
+  </div>
+
+  <div v-else class="q-pa-md">
     <q-card>
       <q-card-section class="text-h6">
         Editar Categoría de Enlace
@@ -54,7 +64,6 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import { useQuasar } from "quasar";
 import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 import rules from "src/utils/rules";
@@ -64,6 +73,7 @@ import { successNotifyConfig } from "src/utils/notification/notification";
 const router = useRouter();
 const categoria_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
+const isLoadingCategoriaEnlaces = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -77,13 +87,18 @@ onMounted(() => {
 });
 
 const getCategoriaEnlace = () => {
+  isLoadingCategoriaEnlaces.value = true;
   api
     .get(`/api/categorylink/` + categoria_id)
     .then((response) => {
-      console.log(response.data);
+      isLoadingCategoriaEnlaces.value = false;
+
       form.value = response.data.categoria;
     })
-    .catch((error) => handleErrors(error));
+    .catch((error) => {
+      handleErrors(error);
+      isLoadingCategoriaEnlaces.value = false;
+    });
 };
 
 const updateCategoriaEnlace = () => {

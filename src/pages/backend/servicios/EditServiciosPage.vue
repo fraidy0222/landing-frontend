@@ -1,5 +1,15 @@
 <template>
-  <div class="q-pa-md">
+  <div
+    v-if="isLoadingServicios"
+    class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-screen"
+  >
+    <div>
+      <q-spinner-cube color="primary" size="4em" />
+    </div>
+    <div class="tw-text-lg">Cargando. Por favor espere...</div>
+  </div>
+
+  <div v-else class="q-pa-md">
     <q-card>
       <q-card-section class="text-h6"> Editar Servicio </q-card-section>
       <q-card-section>
@@ -78,6 +88,7 @@ import handleHttpRequest from "src/composables/handleHttpRequest";
 const router = useRouter();
 const servicio_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
+const isLoadingServicios = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -92,13 +103,18 @@ onMounted(() => {
 });
 
 const getServicio = () => {
+  isLoadingServicios.value = true;
   api
     .get("/api/servicios/" + servicio_id)
     .then((response) => {
+      isLoadingServicios.value = false;
       form.value = response.data.servicios;
       form.value.imagen = null;
     })
-    .catch((error) => handleErrors(error));
+    .catch((error) => {
+      handleErrors(error);
+      isLoadingServicios.value = true;
+    });
 };
 
 const updateServicio = () => {

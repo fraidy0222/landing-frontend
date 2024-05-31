@@ -1,5 +1,15 @@
 <template>
-  <div class="q-pa-md">
+  <div
+    v-if="isLoadingEnlaceInteres"
+    class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-screen"
+  >
+    <div>
+      <q-spinner-cube color="primary" size="4em" />
+    </div>
+    <div class="tw-text-lg">Cargando. Por favor espere...</div>
+  </div>
+
+  <div v-else class="q-pa-md">
     <q-card>
       <q-card-section class="text-h6"> Editar Enlace de Inerés </q-card-section>
       <q-card-section>
@@ -84,6 +94,7 @@ const enlace_id = router.currentRoute.value.params.id;
 const categorias = ref([]);
 const selectCategoria = ref(null);
 const isLoading = ref(false);
+const isLoadingEnlaceInteres = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -98,14 +109,16 @@ onMounted(() => {
 });
 
 const getEnlaceInteres = () => {
+  isLoadingEnlaceInteres.value = true;
   api
     .get(`/api/enlaces/` + enlace_id)
     .then((response) => {
-      console.log(response.data);
+      isLoadingEnlaceInteres.value = false;
       form.value = response.data.enlace;
       selectCategoria.value = response.data.categoria;
     })
     .catch((error) => {
+      isLoadingEnlaceInteres.value = false;
       handleErrors(error);
     });
 };
@@ -116,7 +129,7 @@ const getCategorias = () => {
     .then((response) => {
       categorias.value = response.data.categorias;
     })
-    .catch((error) => handleHttpRequest(error));
+    .catch((error) => handleErrors(error));
 };
 
 const updateEnlaceInteres = () => {

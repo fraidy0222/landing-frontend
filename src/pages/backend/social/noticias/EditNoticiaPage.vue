@@ -1,8 +1,16 @@
 <template>
-  <div class="q-pa-md">
-    <SkeletonCard v-if="isLoadingInfo" :array="6" />
+  <div
+    v-if="isLoadingNoticia"
+    class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-screen"
+  >
+    <div>
+      <q-spinner-cube color="primary" size="4em" />
+    </div>
+    <div class="tw-text-lg">Cargando. Por favor espere...</div>
+  </div>
 
-    <q-card v-else>
+  <div v-else class="q-pa-md">
+    <q-card>
       <q-card-section class="text-h6"> Editar Noticia </q-card-section>
       <q-card-section>
         <q-form @submit="updateNoticia">
@@ -124,7 +132,6 @@ import { api } from "boot/axios";
 import { useRouter } from "vue-router";
 import rules from "src/utils/rules";
 import { authStore } from "src/stores/auth-store";
-import SkeletonCard from "components/Skeleton/SkeletonCard.vue";
 import { successNotifyConfig } from "src/utils/notification/notification";
 import handleHttpRequest from "src/composables/handleHttpRequest";
 
@@ -132,7 +139,7 @@ const categorias = ref([]);
 const selectCategoria = ref([]);
 const estados = ref([]);
 const selectEstado = ref(null);
-const isLoadingInfo = ref(false);
+const isLoadingNoticia = ref(false);
 const isLoading = ref(false);
 
 const { handleErrors } = handleHttpRequest();
@@ -155,11 +162,11 @@ onMounted(() => {
 });
 
 const getNoticias = () => {
-  isLoadingInfo.value = true;
+  isLoadingNoticia.value = true;
   api
     .get("/api/noticias/" + noticia_id)
     .then((response) => {
-      isLoadingInfo.value = false;
+      isLoadingNoticia.value = false;
       form.value = response.data.noticias;
       selectCategoria.value = response.data.noticias.categorias;
       selectEstado.value = response.data.estadoId[0].estado;
@@ -167,6 +174,7 @@ const getNoticias = () => {
     })
     .catch((error) => {
       handleErrors(error);
+      isLoadingNoticia.value = false;
     });
 };
 

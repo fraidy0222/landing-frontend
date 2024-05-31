@@ -1,4 +1,14 @@
 <template>
+  <div
+    v-if="isLoadingSocios"
+    class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-screen"
+  >
+    <div>
+      <q-spinner-cube color="primary" size="4em" />
+    </div>
+    <div class="tw-text-lg">Cargando. Por favor espere...</div>
+  </div>
+
   <div class="q-pa-md">
     <q-card>
       <q-card-section class="text-h6"> Editar Socio </q-card-section>
@@ -77,6 +87,7 @@ import handleHttpRequest from "src/composables/handleHttpRequest";
 const router = useRouter();
 const socio_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
+const isLoadingSocios = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -91,13 +102,18 @@ onMounted(() => {
 });
 
 const getSocio = () => {
+  isLoadingSocios.value = true;
   api
     .get(`/api/socios/` + socio_id)
     .then((response) => {
+      isLoadingSocios.value = false;
       form.value = response.data.socio;
       form.value.logo = null;
     })
-    .catch((error) => handleErrors(error));
+    .catch((error) => {
+      handleErrors(error);
+      isLoadingSocios.value = false;
+    });
 };
 
 const updateSocio = () => {

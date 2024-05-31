@@ -1,5 +1,15 @@
 <template>
-  <div class="q-pa-md">
+  <div
+    v-if="isLoadingEstado"
+    class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-screen"
+  >
+    <div>
+      <q-spinner-cube color="primary" size="4em" />
+    </div>
+    <div class="tw-text-lg">Cargando. Por favor espere...</div>
+  </div>
+
+  <div v-else class="q-pa-md">
     <q-card>
       <q-card-section class="text-h6"> Editar Estado </q-card-section>
       <q-card-section>
@@ -61,6 +71,7 @@ import rules from "src/utils/rules";
 const router = useRouter();
 const estado_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
+const isLoadingEstado = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -68,6 +79,24 @@ const form = ref({
   nombre: "",
   descripcion: "",
 });
+
+onMounted(() => {
+  getEstado();
+});
+
+const getEstado = () => {
+  isLoadingEstado.value = true;
+  api
+    .get("/api/estadoNew/" + estado_id)
+    .then((response) => {
+      form.value = response.data;
+      isLoadingEstado.value = false;
+    })
+    .catch((error) => {
+      handleErrors(error);
+      isLoadingEstado.value = false;
+    });
+};
 
 const updateEstado = () => {
   isLoading.value = true;

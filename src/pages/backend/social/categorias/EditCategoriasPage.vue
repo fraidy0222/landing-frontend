@@ -1,11 +1,21 @@
 <template>
-  <div class="q-pa-md">
+  <div
+    v-if="isLoadingCategoria"
+    class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-screen"
+  >
+    <div>
+      <q-spinner-cube color="primary" size="4em" />
+    </div>
+    <div class="tw-text-lg">Cargando. Por favor espere...</div>
+  </div>
+
+  <div v-else class="q-pa-md">
     <q-card>
       <q-card-section class="text-h6"> Editar Noticia </q-card-section>
       <q-card-section>
         <q-form @submit="updateCategoria">
           <div class="row q-col-gutter-md q-mb-md">
-            <div class="col-xs-12 col-sm-6">
+            <div class="col-xs-12">
               <q-input
                 outlined
                 v-model="form.nombre"
@@ -15,8 +25,13 @@
                 :rules="[rules.required]"
               />
             </div>
-            <div class="col-xs-12 col-sm-6">
-              <q-editor v-model="form.descripcion" min-height="5rem" />
+            <div class="col-12">
+              <q-editor
+                v-model="form.descripcion"
+                min-height="5rem"
+                placeholder="Descripción"
+                style="font-size: 16px"
+              />
             </div>
           </div>
 
@@ -56,6 +71,7 @@ import handleHttpRequest from "src/composables/handleHttpRequest";
 const router = useRouter();
 const categoria_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
+const isLoadingCategoria = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -68,13 +84,16 @@ onMounted(() => {
   getCategorias();
 });
 const getCategorias = () => {
+  isLoadingCategoria.value = true;
   api
     .get("/api/categoryNew/" + categoria_id)
     .then((response) => {
       form.value = response.data;
+      isLoadingCategoria.value = false;
     })
     .catch((error) => {
       handleErrors(error);
+      isLoadingCategoria.value = false;
     });
 };
 

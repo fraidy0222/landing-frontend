@@ -1,4 +1,14 @@
 <template>
+  <div
+    v-if="isLoadingTeam"
+    class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-screen"
+  >
+    <div>
+      <q-spinner-cube color="primary" size="4em" />
+    </div>
+    <div class="tw-text-lg">Cargando. Por favor espere...</div>
+  </div>
+
   <div class="q-pa-md">
     <q-card>
       <q-card-section class="text-h6"> Editar Directivo </q-card-section>
@@ -103,6 +113,7 @@ import handleHttpRequest from "src/composables/handleHttpRequest";
 const router = useRouter();
 const directivo_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
+const isLoadingTeam = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -119,13 +130,18 @@ onMounted(() => {
 });
 
 const getDirectivo = () => {
+  isLoadingTeam.value = true;
   api
     .get(`/api/directivos/` + directivo_id)
     .then((response) => {
       form.value = response.data.directivo;
+      isLoadingTeam.value = false;
       form.value.imagen = null;
     })
-    .catch((error) => handleErrors(error));
+    .catch((error) => {
+      handleErrors(error);
+      isLoadingTeam.value = false;
+    });
 };
 
 const updateDirectivo = () => {

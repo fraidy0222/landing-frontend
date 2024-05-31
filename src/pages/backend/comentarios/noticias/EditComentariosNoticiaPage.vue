@@ -1,5 +1,15 @@
 <template>
-  <div class="q-pa-md">
+  <div
+    v-if="isLoadingComentario"
+    class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-screen"
+  >
+    <div>
+      <q-spinner-cube color="primary" size="4em" />
+    </div>
+    <div class="tw-text-lg">Cargando. Por favor espere...</div>
+  </div>
+
+  <div v-else class="q-pa-md">
     <q-card>
       <q-card-section class="text-h6">
         Editar Comentario de Noticia
@@ -120,6 +130,7 @@ const estados = ref([]);
 const selectEstado = ref(null);
 const router = useRouter();
 const isLoading = ref(false);
+const isLoadingComentario = ref(false);
 const comentario_noticia_id = router.currentRoute.value.params.id;
 const { handleErrors } = handleHttpRequest();
 
@@ -138,6 +149,22 @@ onMounted(() => {
   getNoticias();
 });
 
+const getComentariosNoticias = () => {
+  isLoadingComentario.value = true;
+  api
+    .get(`/api/comentarios/` + comentario_noticia_id)
+    .then((response) => {
+      form.value = response.data.comentario;
+      isLoadingComentario.value = false;
+      selectEstado.value = response.data.comentario.estado;
+      selectNoticia.value = response.data.comentario.noticia;
+    })
+    .catch((error) => {
+      handleErrors(error);
+      isLoadingComentario.value = false;
+    });
+};
+
 const updateComentarioNoticia = () => {
   form.value.user_id = user.user.id;
   form.value.estado_id = selectEstado.value.id;
@@ -155,27 +182,30 @@ const updateComentarioNoticia = () => {
     })
     .catch((error) => {
       handleErrors(error);
+
       isLoading.value = false;
     });
 };
 
-const getComentariosNoticias = () => {
-  api.get(`/api/comentarios/` + comentario_noticia_id).then((response) => {
-    form.value = response.data.comentario;
-    selectEstado.value = response.data.comentario.estado;
-    selectNoticia.value = response.data.comentario.noticia;
-  });
-};
-
 const getNoticias = () => {
-  api.get("/api/noticias/").then((response) => {
-    noticias.value = response.data.noticias;
-  });
+  api
+    .get("/api/noticias/")
+    .then((response) => {
+      noticias.value = response.data.noticias;
+    })
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 
 const getEstadoNoticias = () => {
-  api.get("/api/estadoNew/").then((response) => {
-    estados.value = response.data.estadoNoticias;
-  });
+  api
+    .get("/api/estadoNew/")
+    .then((response) => {
+      estados.value = response.data.estadoNoticias;
+    })
+    .catch((error) => {
+      handleErrors(error);
+    });
 };
 </script>

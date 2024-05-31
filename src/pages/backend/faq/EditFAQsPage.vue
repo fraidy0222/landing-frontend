@@ -1,5 +1,15 @@
 <template>
-  <div class="q-pa-md">
+  <div
+    v-if="isLoadingFaq"
+    class="tw-flex tw-flex-col tw-gap-4 tw-items-center tw-justify-center tw-h-screen"
+  >
+    <div>
+      <q-spinner-cube color="primary" size="4em" />
+    </div>
+    <div class="tw-text-lg">Cargando. Por favor espere...</div>
+  </div>
+
+  <div v-else class="q-pa-md">
     <q-card>
       <q-card-section class="text-h6">
         Editar Pregunta Frecuente
@@ -65,6 +75,7 @@ import handleHttpRequest from "src/composables/handleHttpRequest";
 const router = useRouter();
 const faq_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
+const isLoadingFaq = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -78,12 +89,17 @@ onMounted(() => {
 });
 
 const getFaq = () => {
+  isLoadingFaq.value = true;
   api
     .get(`/api/faqs/` + faq_id)
     .then((response) => {
+      isLoadingFaq.value = false;
       form.value = response.data;
     })
-    .catch((error) => handleErrors(error));
+    .catch((error) => {
+      handleErrors(error);
+      isLoadingFaq.value = false;
+    });
 };
 
 const updateFaq = () => {
