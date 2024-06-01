@@ -54,13 +54,13 @@
               <q-select
                 outlined
                 v-model="selectEstado"
+                :options="optionsEstados"
                 @filter="filterEstados"
                 transition-show="jump-up"
                 transition-hide="jump-up"
                 label="Seleccione un estado"
                 option-value="id"
                 option-label="nombre"
-                :options="optionsEstados"
                 emit-value
                 map-options
                 :rules="[rules.requiredSelect]"
@@ -180,7 +180,7 @@ function filterNoticias(val, update, abort) {
     update(() => {
       optionsEmpresa.value = noticias.value;
     });
-  }, 1000);
+  }, 2000);
 }
 
 const getNoticias = () => {
@@ -197,6 +197,7 @@ const getNoticias = () => {
     });
 };
 
+// Estados
 function filterEstados(val, update, abort) {
   if (optionsEstados.value !== null) {
     // already loaded

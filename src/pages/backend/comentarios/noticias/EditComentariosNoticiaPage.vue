@@ -40,12 +40,13 @@
               <q-select
                 outlined
                 v-model="selectNoticia"
+                :options="optionsEmpresa"
+                @filter="filterNoticias"
                 transition-show="jump-up"
                 transition-hide="jump-up"
                 label="Seleccione una noticia"
                 option-value="id"
                 option-label="titulo"
-                :options="noticias"
                 :rules="[rules.requiredSelect]"
               >
                 <template v-slot:no-option>
@@ -61,12 +62,13 @@
               <q-select
                 outlined
                 v-model="selectEstado"
+                :options="optionsEstados"
+                @filter="filterEstados"
                 transition-show="jump-up"
                 transition-hide="jump-up"
                 label="Seleccione un estado"
                 option-value="id"
                 option-label="nombre"
-                :options="estados"
                 :rules="[rules.requiredSelect]"
               >
                 <template v-slot:no-option>
@@ -134,6 +136,9 @@ const isLoadingComentario = ref(false);
 const comentario_noticia_id = router.currentRoute.value.params.id;
 const { handleErrors } = handleHttpRequest();
 
+const optionsEmpresa = ref(null);
+const optionsEstados = ref(null);
+
 const form = ref({
   nombre_comentario: "",
   correo_comentario: "",
@@ -187,6 +192,20 @@ const updateComentarioNoticia = () => {
     });
 };
 
+function filterNoticias(val, update, abort) {
+  if (optionsEmpresa.value !== null) {
+    // already loaded
+    update();
+    return;
+  }
+
+  setTimeout(() => {
+    update(() => {
+      optionsEmpresa.value = noticias.value;
+    });
+  }, 2000);
+}
+
 const getNoticias = () => {
   api
     .get("/api/noticias/")
@@ -197,6 +216,21 @@ const getNoticias = () => {
       handleErrors(error);
     });
 };
+
+// Estados
+function filterEstados(val, update, abort) {
+  if (optionsEstados.value !== null) {
+    // already loaded
+    update();
+    return;
+  }
+
+  setTimeout(() => {
+    update(() => {
+      optionsEstados.value = estados.value;
+    });
+  }, 1000);
+}
 
 const getEstadoNoticias = () => {
   api
