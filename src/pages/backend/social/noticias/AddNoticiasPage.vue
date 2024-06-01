@@ -25,12 +25,13 @@
               <q-select
                 outlined
                 v-model="selectCategoria"
+                :options="optionsCategoria"
+                @filter="filterCategoria"
                 transition-show="jump-up"
                 transition-hide="jump-up"
                 label="Seleccione una categoría"
                 option-value="id"
                 option-label="nombre"
-                :options="categorias"
                 emit-value
                 map-options
                 multiple
@@ -49,12 +50,13 @@
               <q-select
                 outlined
                 v-model="selectEstado"
+                :options="optionsEstado"
+                @filter="filterEstado"
                 transition-show="jump-up"
                 transition-hide="jump-up"
                 label="Seleccione un estado"
                 option-value="id"
                 option-label="nombre"
-                :options="estados"
                 emit-value
                 map-options
                 :rules="[rules.requiredSelect]"
@@ -329,8 +331,10 @@ const isLoading = ref(false);
 
 const store = authStore();
 const $q = useQuasar();
-
 const { handleErrors } = handleHttpRequest();
+
+const optionsCategoria = ref(null);
+const optionsEstado = ref(null);
 
 const form = ref({
   portada: null,
@@ -376,6 +380,20 @@ const storeNoticia = () => {
     });
 };
 
+function filterCategoria(val, update, abort) {
+  if (optionsCategoria.value !== null) {
+    // already loaded
+    update();
+    return;
+  }
+
+  setTimeout(() => {
+    update(() => {
+      optionsCategoria.value = categorias.value;
+    });
+  }, 2000);
+}
+
 const getCategorias = () => {
   api
     .get("/api/categoryNew/")
@@ -386,6 +404,22 @@ const getCategorias = () => {
       handleErrors(error);
     });
 };
+
+// Estado
+function filterEstado(val, update, abort) {
+  if (optionsEstado.value !== null) {
+    // already loaded
+    update();
+    return;
+  }
+
+  setTimeout(() => {
+    update(() => {
+      optionsEstado.value = estados.value;
+    });
+  }, 2000);
+}
+
 const getEstadoNoticias = () => {
   api
     .get("/api/estadoNew/")

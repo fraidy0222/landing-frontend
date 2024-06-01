@@ -35,14 +35,13 @@
               <q-select
                 outlined
                 v-model="selectCategoria"
+                :options="optionsCategoria"
+                @filter="filterCategoria"
                 transition-show="jump-up"
                 transition-hide="jump-up"
                 label="Seleccione una categoría"
                 option-value="id"
                 option-label="nombre"
-                :options="categorias"
-                emit-value
-                map-options
                 multiple
                 :rules="[rules.requiredSelect]"
               >
@@ -59,14 +58,13 @@
               <q-select
                 outlined
                 v-model="selectEstado"
+                :options="optionsEstado"
+                @filter="filterEstado"
                 transition-show="jump-up"
                 transition-hide="jump-up"
                 label="Seleccione un estado"
                 option-value="id"
                 option-label="nombre"
-                :options="estados"
-                emit-value
-                map-options
                 :rules="[rules.requiredSelect]"
               >
                 <template v-slot:no-option>
@@ -214,7 +212,7 @@
             type="submit"
             color="primary"
             class="text-white"
-            :isLoading="isLoading"
+            :loading="isLoading"
             :disable="isLoading"
           >
             <q-icon name="save" class="q-mr-sm"></q-icon>
@@ -245,6 +243,9 @@ const isLoading = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
+const optionsCategoria = ref(null);
+const optionsEstado = ref(null);
+
 const form = ref({
   portada: null,
   titulo: "",
@@ -256,119 +257,6 @@ const store = authStore();
 const router = useRouter();
 const noticia_id = router.currentRoute.value.params.id;
 const $q = useQuasar();
-
-const definitions = {
-  save: {
-    tip: "Save your work",
-    icon: "save",
-    label: "Save",
-  },
-  upload: {
-    tip: "Upload to cloud",
-    icon: "cloud_upload",
-    label: "Upload",
-  },
-  bold: {
-    tip: "Negrita",
-    icon: "format_bold",
-  },
-  italic: {
-    tip: "Cursiva",
-    icon: "format_italic",
-  },
-  strike: {
-    tip: "Tachado",
-    icon: "strikethrough_s",
-  },
-  underline: {
-    tip: "Subrayado",
-    icon: "format_underlined",
-  },
-  hr: {
-    tip: "Insertar línea horizontal",
-    icon: "horizontal_rule",
-  },
-  link: {
-    tip: "Vínculo",
-    icon: "link",
-  },
-  print: {
-    tip: "Imprimir",
-    icon: "print",
-  },
-  fullscreen: {
-    tip: "Pantalla completa",
-    icon: "fullscreen",
-  },
-  // unordered: {
-  //   tip: "Viñetas",
-  // },
-  // ordered: {
-  //   tip: "Numeración",
-  // },
-};
-
-const toolbar = [
-  [
-    {
-      label: "Alinear",
-      icon: "format_align_left",
-      fixedLabel: true,
-      list: "only-icons",
-      options: ["left", "center", "right", "justify"],
-    },
-  ],
-  ["bold", "italic", "strike", "underline"],
-  ["hr", "link", "print", "fullscreen"],
-  [
-    {
-      label: "Formato",
-      icon: "text_fields",
-      fixedLabel: true,
-      fixedIcon: true,
-      list: "no-icons",
-      options: ["p", "h1", "h2", "h3", "h4", "h5", "h6", "code"],
-    },
-    {
-      label: "Tamaño de letra",
-      icon: $q.iconSet.editor.fontSize,
-      fixedLabel: true,
-      fixedIcon: true,
-      list: "no-icons",
-      options: [
-        "size-1",
-        "size-2",
-        "size-3",
-        "size-4",
-        "size-5",
-        "size-6",
-        "size-7",
-      ],
-    },
-    {
-      label: "Tipo de fuente",
-      icon: $q.iconSet.editor.font,
-      fixedIcon: true,
-      fixedLabel: true,
-      list: "no-icons",
-      options: [
-        "arial",
-        "arial_black",
-        "comic_sans",
-        "courier_new",
-        "impact",
-        "lucida_grande",
-        "times_new_roman",
-        "verdana",
-      ],
-    },
-    "removeFormat",
-  ],
-  ["quote", "unordered", "ordered", "outdent", "indent"],
-
-  ["undo", "redo"],
-  ["viewsource"],
-];
 
 onMounted(() => {
   getNoticias();
@@ -393,6 +281,20 @@ const getNoticias = () => {
     });
 };
 
+function filterCategoria(val, update, abort) {
+  if (optionsCategoria.value !== null) {
+    // already loaded
+    update();
+    return;
+  }
+
+  setTimeout(() => {
+    update(() => {
+      optionsCategoria.value = categorias.value;
+    });
+  }, 2000);
+}
+
 const getCategorias = () => {
   api
     .get("/api/categoryNew/")
@@ -403,6 +305,20 @@ const getCategorias = () => {
       handleErrors(error);
     });
 };
+
+function filterEstado(val, update, abort) {
+  if (optionsEstado.value !== null) {
+    // already loaded
+    update();
+    return;
+  }
+
+  setTimeout(() => {
+    update(() => {
+      optionsEstado.value = estados.value;
+    });
+  }, 2000);
+}
 
 const getEstadoNoticias = () => {
   api
@@ -444,13 +360,13 @@ const updateNoticia = () => {
       },
     })
     .then((response) => {
-      isLoading.value = false;
+      isLoading.value = true;
       successNotifyConfig(response.data.message);
       router.push({ path: "/noticias" });
     })
     .catch((error) => {
       handleErrors(error);
-      isLoading.value = false;
+      isLoading.value = true;
     });
 };
 </script>
