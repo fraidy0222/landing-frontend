@@ -25,7 +25,7 @@
 
       <template v-slot:body-cell-resumen="props">
         <td>
-          <div class="tw-w-52 ellipsis">{{ props.row.resumen }}</div>
+          <div class="tw-w-40 ellipsis">{{ props.row.resumen }}</div>
         </td>
       </template>
       <template v-slot:body-cell-imagen="props">

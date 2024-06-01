@@ -34,7 +34,6 @@
                 emit-value
                 map-options
                 multiple
-                clearable
                 :rules="[rules.requiredSelect]"
               >
                 <template v-slot:no-option>
@@ -58,7 +57,6 @@
                 :options="estados"
                 emit-value
                 map-options
-                clearable
                 :rules="[rules.requiredSelect]"
               >
                 <template v-slot:no-option>
