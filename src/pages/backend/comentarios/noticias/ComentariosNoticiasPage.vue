@@ -15,7 +15,7 @@
     >
       <template v-slot:body-cell-comentario="props">
         <td>
-          <div class="tw-w-56 ellipsis">{{ props.row.comentario }}</div>
+          <div class="tw-w-44 ellipsis">{{ props.row.comentario }}</div>
         </td>
       </template>
       <template v-slot:body-cell-noticia_info="props">

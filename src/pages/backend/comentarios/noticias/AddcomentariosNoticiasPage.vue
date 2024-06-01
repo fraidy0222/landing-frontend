@@ -30,12 +30,13 @@
               <q-select
                 outlined
                 v-model="selectNoticia"
+                :options="optionsEmpresa"
+                @filter="filterNoticias"
                 transition-show="jump-up"
                 transition-hide="jump-up"
                 label="Seleccione una noticia"
                 option-value="id"
                 option-label="titulo"
-                :options="noticias"
                 emit-value
                 map-options
                 :rules="[rules.requiredSelect]"
@@ -53,12 +54,13 @@
               <q-select
                 outlined
                 v-model="selectEstado"
+                @filter="filterEstados"
                 transition-show="jump-up"
                 transition-hide="jump-up"
                 label="Seleccione un estado"
                 option-value="id"
                 option-label="nombre"
-                :options="estados"
+                :options="optionsEstados"
                 emit-value
                 map-options
                 :rules="[rules.requiredSelect]"
@@ -126,6 +128,11 @@ const estados = ref([]);
 const selectEstado = ref(null);
 const router = useRouter();
 const isLoading = ref(false);
+const isLoadingNoticia = ref(false);
+const isLoadingEstado = ref(false);
+
+const optionsEmpresa = ref(null);
+const optionsEstados = ref(null);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -162,15 +169,59 @@ const storeComentarioNoticia = () => {
     });
 };
 
+function filterNoticias(val, update, abort) {
+  if (optionsEmpresa.value !== null) {
+    // already loaded
+    update();
+    return;
+  }
+
+  setTimeout(() => {
+    update(() => {
+      optionsEmpresa.value = noticias.value;
+    });
+  }, 1000);
+}
+
 const getNoticias = () => {
-  api.get("/api/noticias/").then((response) => {
-    noticias.value = response.data.noticias;
-  });
+  isLoadingNoticia.value = true;
+  api
+    .get("/api/noticias/")
+    .then((response) => {
+      noticias.value = response.data.noticias;
+      isLoadingNoticia.value = false;
+    })
+    .catch((error) => {
+      handleErrors(error);
+      isLoadingNoticia.value = false;
+    });
 };
 
+function filterEstados(val, update, abort) {
+  if (optionsEstados.value !== null) {
+    // already loaded
+    update();
+    return;
+  }
+
+  setTimeout(() => {
+    update(() => {
+      optionsEstados.value = estados.value;
+    });
+  }, 1000);
+}
+
 const getEstadoNoticias = () => {
-  api.get("/api/estadoNew/").then((response) => {
-    estados.value = response.data.estadoNoticias;
-  });
+  isLoadingEstado.value = true;
+  api
+    .get("/api/estadoNew/")
+    .then((response) => {
+      estados.value = response.data.estadoNoticias;
+      isLoadingEstado.value = false;
+    })
+    .catch((error) => {
+      handleErrors(error);
+      isLoadingEstado.value = false;
+    });
 };
 </script>
