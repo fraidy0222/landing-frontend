@@ -37,12 +37,13 @@
               <q-select
                 outlined
                 v-model="selectCategoria"
+                :options="optionsEnlaces"
+                @filter="filterNoticias"
                 transition-show="jump-up"
                 transition-hide="jump-up"
                 label="Seleccione una categoría"
                 option-value="id"
                 option-label="nombre"
-                :options="categorias"
                 :rules="[rules.requiredSelect]"
               >
                 <template v-slot:no-option>
@@ -98,6 +99,8 @@ const isLoadingEnlaceInteres = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
+const optionsEnlaces = ref(null);
+
 const form = ref({
   nombre: "",
   enlace: "",
@@ -122,6 +125,20 @@ const getEnlaceInteres = () => {
       handleErrors(error);
     });
 };
+
+function filterNoticias(val, update, abort) {
+  if (optionsEnlaces.value !== null) {
+    // already loaded
+    update();
+    return;
+  }
+
+  setTimeout(() => {
+    update(() => {
+      optionsEnlaces.value = categorias.value;
+    });
+  }, 1000);
+}
 
 const getCategorias = () => {
   api
