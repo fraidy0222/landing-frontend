@@ -5,7 +5,7 @@
       <q-card-section>
         <q-form @submit="storeCategoria">
           <div class="row q-col-gutter-md q-mb-md">
-            <div class="col-xs-12">
+            <div class="col-xs-12 col-md-6">
               <q-input
                 outlined
                 v-model="form.nombre"
@@ -15,12 +15,13 @@
                 :rules="[rules.required]"
               />
             </div>
-            <div class="col-12">
-              <q-editor
+            <div class="col-xs-12 col-md-6">
+              <q-input
+                outlined
                 v-model="form.descripcion"
-                min-height="5rem"
-                placeholder="Descripción"
-                style="font-size: 16px"
+                label="Descripción"
+                type="text"
+                lazy-rules
               />
             </div>
           </div>
