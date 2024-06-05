@@ -13,7 +13,7 @@
     <q-card>
       <q-card-section class="text-h6"> Editar Noticia </q-card-section>
       <q-card-section>
-        <q-form @submit="updateNoticia">
+        <q-form @submit.prevent="updateNoticia">
           <div class="row q-col-gutter-md q-mb-md">
             <div class="col-xs-12 col-sm-4">
               <q-file
@@ -95,7 +95,78 @@
                 lazy-rules
               />
             </div>
-            <div class="col-xs-12 col-sm-12"></div>
+            <div class="col-xs-12 col-sm-12">
+              <section
+                v-if="editor"
+                class="tw-flex tw-items-center tw-flex-wrap tw-gap-x-3 tw-border-t tw-border-l tw-border-r tw-border-gray400 tw-p-4"
+              >
+                <button
+                  @click.prevent="editor.chain().focus().toggleBold().run()"
+                  :disabled="!editor.can().chain().focus().toggleBold().run()"
+                  :class="{ 'is-active': editor.isActive('bold') }"
+                >
+                  bold
+                </button>
+                <button
+                  @click.prevent="editor.chain().focus().toggleItalic().run()"
+                  :disabled="!editor.can().chain().focus().toggleItalic().run()"
+                  :class="{ 'is-active': editor.isActive('italic') }"
+                >
+                  italic
+                </button>
+                <button
+                  @click.prevent="
+                    editor.chain().focus().toggleUnderline().run()
+                  "
+                  :class="{ 'is-active': editor.isActive('underline') }"
+                >
+                  toggleUnderline
+                </button>
+                <button
+                  @click.prevent="setLink"
+                  :class="{ 'is-active': editor.isActive('link') }"
+                >
+                  setLink
+                </button>
+                <button
+                  @click.prevent="
+                    editor.chain().focus().toggleHeading({ level: 3 }).run()
+                  "
+                  :class="{
+                    'is-active': editor.isActive('heading', { level: 3 }),
+                  }"
+                >
+                  h3
+                </button>
+                <button
+                  @click.prevent="editor.chain().focus().unsetLink().run()"
+                  :disabled="!editor.isActive('link')"
+                >
+                  unsetLink
+                </button>
+                <button
+                  @click.prevent="
+                    editor.chain().focus().toggleOrderedList().run()
+                  "
+                  :class="{ 'is-active': editor.isActive('orderedList') }"
+                >
+                  toggleOrderedList
+                </button>
+                <button
+                  @click.prevent="editor.chain().focus().undo().run()"
+                  :disabled="!editor.can().chain().focus().undo().run()"
+                >
+                  undo
+                </button>
+                <button
+                  @click.prevent="editor.chain().focus().redo().run()"
+                  :disabled="!editor.can().chain().focus().redo().run()"
+                >
+                  redo
+                </button>
+              </section>
+              <editor-content :editor="editor" />
+            </div>
           </div>
 
           <q-btn
@@ -131,7 +202,14 @@ import rules from "src/utils/rules";
 import { authStore } from "src/stores/auth-store";
 import { successNotifyConfig } from "src/utils/notification/notification";
 import handleHttpRequest from "src/composables/handleHttpRequest";
-import { useQuasar } from "quasar";
+
+// TipTap editor
+import { useEditor, EditorContent } from "@tiptap/vue-3";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import Link from "@tiptap/extension-link";
+import ListItem from "@tiptap/extension-list-item";
+import OrderedList from "@tiptap/extension-ordered-list";
 
 const categorias = ref([]);
 const selectCategoria = ref([]);
@@ -142,6 +220,27 @@ const isLoading = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
+const editor = useEditor({
+  content: "<p>I’m running Tiptap with Vue.js. 🎉</p>",
+  editorProps: {
+    attributes: {
+      class:
+        "tw-border tw-prose tw-border-gray400 tw-p-4 tw-min-h-[12rem] tw-max-h-[12rem] tw-overflow-y-auto tw-outline-none",
+    },
+  },
+  extensions: [
+    StarterKit,
+    Underline,
+    OrderedList,
+    ListItem,
+    Link.configure({
+      protocols: ["ftp", "mailto"],
+      autolink: true,
+      openOnClick: true,
+      validate: (href) => /^https?:\/\//.test(href),
+    }),
+  ],
+});
 const optionsCategoria = ref(null);
 const optionsEstado = ref(null);
 
@@ -155,7 +254,6 @@ const form = ref({
 const store = authStore();
 const router = useRouter();
 const noticia_id = router.currentRoute.value.params.id;
-const $q = useQuasar();
 
 onMounted(() => {
   getNoticias();
@@ -259,13 +357,61 @@ const updateNoticia = () => {
       },
     })
     .then((response) => {
-      isLoading.value = true;
+      isLoading.value = false;
       successNotifyConfig(response.data.message);
       router.push({ path: "/noticias" });
     })
     .catch((error) => {
       handleErrors(error);
-      isLoading.value = true;
+      isLoading.value = false;
     });
 };
+
+// Methods TipTap
+function setLink() {
+  const previousUrl = editor.value.getAttributes("link").href;
+  const url = window.prompt("URL", previousUrl);
+
+  // cancelled
+  if (url === null) {
+    return;
+  }
+
+  // empty
+  if (url === "") {
+    editor.value.chain().focus().extendMarkRange("link").unsetLink().run();
+
+    return;
+  }
+
+  // update link
+  editor.value
+    .chain()
+    .focus()
+    .extendMarkRange("link")
+    .setLink({ href: url })
+    .run();
+}
 </script>
+
+<style lang="scss">
+/* Basic editor styles */
+.tiptap {
+  > * + * {
+    margin-top: 0.75em;
+  }
+
+  a {
+    color: #68cef8;
+  }
+
+  code {
+    font-size: 0.9rem;
+    padding: 0.25em;
+    border-radius: 0.25em;
+    background-color: rgba(#616161, 0.1);
+    color: #616161;
+    box-decoration-break: clone;
+  }
+}
+</style>

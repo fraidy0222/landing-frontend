@@ -31,5 +31,5 @@ module.exports = {
       slate200: "#e2e8f0",
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/typography")],
 };

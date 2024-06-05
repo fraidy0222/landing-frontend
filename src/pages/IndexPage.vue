@@ -1,7 +1,5 @@
 <template>
   <q-page class="flex flex-center">
-    {{ editor }}
-    <q-editor v-model="editor" min-height="5rem" />
     <!-- <q-form @submit.prevent="register">
       <div class="row">
         <div class="cols-12">
@@ -35,8 +33,6 @@ const formR = ref({
   password: "",
   password_confirmation: "",
 });
-
-const editor = ref("");
 
 async function register() {
   api.post("/register", formR.value).then((response) => {
