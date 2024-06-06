@@ -1,3 +1,5 @@
+import typography from "@tailwindcss/typography";
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -7,7 +9,20 @@ module.exports = {
   ],
   prefix: "tw-",
   theme: {
-    extend: {},
+    extend: {
+      typography: ({ theme }) => ({
+        DEFAULT: {
+          css: {
+            "--tw-prose-bullets": theme("colors.gray800"),
+            li: {
+              p: {
+                margin: 0,
+              },
+            },
+          },
+        },
+      }),
+    },
     colors: {
       heroBg: "#D7F5DC",
       primary: "#20B15A",
@@ -31,5 +46,6 @@ module.exports = {
       slate200: "#e2e8f0",
     },
   },
-  plugins: [require("@tailwindcss/typography")],
+
+  plugins: [typography],
 };
