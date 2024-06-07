@@ -89,7 +89,9 @@
                 lazy-rules
               />
             </div>
-            <div class="col-xs-12 col-sm-12"></div>
+            <div class="col-xs-12 col-sm-12">
+              <MyEditor v-model="form.descripcion" />
+            </div>
           </div>
 
           <q-btn
@@ -125,7 +127,7 @@ import rules from "src/utils/rules";
 import { authStore } from "src/stores/auth-store";
 import { successNotifyConfig } from "src/utils/notification/notification";
 import handleHttpRequest from "src/composables/handleHttpRequest";
-import { useQuasar } from "quasar";
+import MyEditor from "components/MyEditor.vue";
 
 const categorias = ref([]);
 const selectCategoria = ref(null);

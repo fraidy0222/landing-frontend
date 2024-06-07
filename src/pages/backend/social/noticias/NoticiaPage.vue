@@ -36,7 +36,14 @@
       </template>
       <template v-slot:body-cell-descripcion="props">
         <td>
-          <div class="tw-w-52 ellipsis" v-html="props.row.descripcion"></div>
+          <button-tooltip
+            icon="description"
+            tooltip="Ver Descripción"
+            color="black"
+            :flat="true"
+            :round="true"
+            @click="showDescription(props.row.descripcion)"
+          />
         </td>
       </template>
 
@@ -169,6 +176,21 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <!-- Show Dialog Description -->
+    <q-dialog v-model="isOpenShowDescription">
+      <q-card>
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">Close icon</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <div v-html="descriptionInfo" class="tw-prose tw-max-w-none"></div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -272,6 +294,8 @@ const isOpenNoticiaItem = ref(false);
 const deleteNoticiaId = ref([]);
 const categorias = ref([]);
 const estados = ref([]);
+const descriptionInfo = ref("");
+const isOpenShowDescription = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
@@ -339,5 +363,11 @@ const deleteNoticia = () => {
 const showNoticiasItem = (item) => {
   noticiaItem.value = item;
   isOpenNoticiaItem.value = true;
+};
+
+const showDescription = (description) => {
+  isOpenShowDescription.value = true;
+  console.log((isOpenShowDescription.value = true));
+  descriptionInfo.value = description;
 };
 </script>

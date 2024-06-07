@@ -96,144 +96,9 @@
               />
             </div>
             <div class="col-xs-12 col-sm-12">
-              <section
-                v-if="editor"
-                class="tw-flex tw-items-center tw-flex-wrap tw-gap-x-3 tw-border-t tw-border-l tw-border-r tw-border-gray400 tw-p-4"
-              >
-                <button
-                  @click.prevent="editor.chain().focus().toggleBold().run()"
-                  :disabled="!editor.can().chain().focus().toggleBold().run()"
-                  :class="{
-                    'tw-bg-gray200 tw-rounded': editor.isActive('bold'),
-                  }"
-                  class="tw-p-1"
-                >
-                  <q-icon name="mdi-format-bold" size="20px"></q-icon>
-                </button>
-                <button
-                  @click.prevent="editor.chain().focus().toggleItalic().run()"
-                  :disabled="!editor.can().chain().focus().toggleItalic().run()"
-                  :class="{
-                    'tw-bg-gray200 tw-rounded': editor.isActive('italic'),
-                  }"
-                  class="tw-p-1"
-                >
-                  <q-icon name="mdi-format-italic" size="20px"></q-icon>
-                </button>
-                <button
-                  @click.prevent="
-                    editor.chain().focus().toggleUnderline().run()
-                  "
-                  :class="{
-                    'tw-bg-gray200 tw-rounded': editor.isActive('underline'),
-                  }"
-                  class="tw-p-1"
-                >
-                  <q-icon name="format_underlined" size="20px"></q-icon>
-                </button>
-                <button
-                  @click.prevent="setLink"
-                  :class="{
-                    'tw-bg-gray200 tw-rounded': editor.isActive('link'),
-                  }"
-                  class="tw-p-1"
-                >
-                  <q-icon name="link" size="20px"></q-icon>
-                </button>
-                <button
-                  @click.prevent="editor.chain().focus().unsetLink().run()"
-                  :disabled="!editor.isActive('link')"
-                  class="tw-p-1"
-                >
-                  <q-icon name="link_off" size="20px"></q-icon>
-                </button>
-                <button
-                  @click.prevent="
-                    editor.chain().focus().toggleHeading({ level: 1 }).run()
-                  "
-                  :class="{
-                    'tw-bg-gray200 tw-rounded': editor.isActive('heading', {
-                      level: 1,
-                    }),
-                  }"
-                  class="tw-p-1"
-                >
-                  <q-icon name="mdi-format-header-1" size="20px"></q-icon>
-                </button>
-                <button
-                  @click.prevent="
-                    editor.chain().focus().toggleHeading({ level: 2 }).run()
-                  "
-                  :class="{
-                    'tw-bg-gray200 tw-rounded': editor.isActive('heading', {
-                      level: 2,
-                    }),
-                  }"
-                  class="tw-p-1"
-                >
-                  <q-icon name="mdi-format-header-2" size="20px"></q-icon>
-                </button>
-
-                <button
-                  @click.prevent="
-                    editor.chain().focus().toggleBulletList().run()
-                  "
-                  :class="{
-                    'tw-bg-gray200 tw-rounded': editor.isActive('bulletList'),
-                  }"
-                  class="tw-p-1"
-                >
-                  <q-icon name="format_list_bulleted" size="20px"></q-icon>
-                </button>
-                <button
-                  @click.prevent="
-                    editor.chain().focus().toggleOrderedList().run()
-                  "
-                  :class="{
-                    'tw-bg-gray200 tw-rounded': editor.isActive('orderedList'),
-                  }"
-                  class="tw-p-1"
-                >
-                  <q-icon name="mdi-format-list-numbered" size="20px"></q-icon>
-                </button>
-                <button
-                  @click.prevent="
-                    editor.chain().focus().setHorizontalRule().run()
-                  "
-                  class="tw-p-1"
-                >
-                  <q-icon name="horizontal_rule" size="20px"></q-icon>
-                </button>
-                <button
-                  @click.prevent="
-                    editor.chain().focus().toggleBlockquote().run()
-                  "
-                  :class="{
-                    'tw-bg-gray200 tw-rounded': editor.isActive('blockquote'),
-                  }"
-                  class="tw-p-1"
-                >
-                  <q-icon name="mdi-format-quote-close" size="20px"></q-icon>
-                </button>
-                <button
-                  @click.prevent="editor.chain().focus().undo().run()"
-                  :disabled="!editor.can().chain().focus().undo().run()"
-                  class="tw-p-1"
-                >
-                  <q-icon name="undo" size="20px"></q-icon>
-                </button>
-                <button
-                  @click.prevent="editor.chain().focus().redo().run()"
-                  :disabled="!editor.can().chain().focus().redo().run()"
-                  class="tw-p-1"
-                >
-                  <q-icon name="redo" size="20px"></q-icon>
-                </button>
-              </section>
-              <editor-content :editor="editor" />
+              <MyEditor v-model="form.descripcion" />
             </div>
           </div>
-
           <q-btn
             @click="$router.push({ path: '/noticias' })"
             type="button"
@@ -267,14 +132,7 @@ import rules from "src/utils/rules";
 import { authStore } from "src/stores/auth-store";
 import { successNotifyConfig } from "src/utils/notification/notification";
 import handleHttpRequest from "src/composables/handleHttpRequest";
-
-// TipTap editor
-import { useEditor, EditorContent } from "@tiptap/vue-3";
-import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
-import Link from "@tiptap/extension-link";
-import ListItem from "@tiptap/extension-list-item";
-import OrderedList from "@tiptap/extension-ordered-list";
+import MyEditor from "components/MyEditor.vue";
 
 const categorias = ref([]);
 const selectCategoria = ref([]);
@@ -285,29 +143,12 @@ const isLoading = ref(false);
 
 const { handleErrors } = handleHttpRequest();
 
-const editor = useEditor({
-  content: "<p>I’m running Tiptap with Vue.js. 🎉</p>",
-  editorProps: {
-    attributes: {
-      class:
-        "tw-border tw-prose tw-border-gray400 tw-p-4 tw-min-h-[12rem] tw-max-h-[12rem] tw-overflow-y-auto tw-outline-none tw-max-w-none",
-    },
-  },
-  extensions: [
-    StarterKit,
-    Underline,
-    // OrderedList,
-    // ListItem,
-    Link.configure({
-      protocols: ["ftp", "mailto"],
-      autolink: true,
-      openOnClick: true,
-      validate: (href) => /^https?:\/\//.test(href),
-    }),
-  ],
-});
 const optionsCategoria = ref(null);
 const optionsEstado = ref(null);
+
+const content = ref(
+  "<h2>Heading Here</h2><p>Im running Tiptap with Vue.js 🎉</p>"
+);
 
 const form = ref({
   portada: null,
