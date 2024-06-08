@@ -1,7 +1,7 @@
 <template>
   <section
     v-if="editor"
-    class="tw-flex tw-items-center tw-flex-wrap tw-gap-x-3 tw-border-t tw-border-l tw-border-r tw-border-gray400 tw-p-4"
+    class="tw-flex tw-items-center tw-flex-wrap tw-gap-x-2.5 tw-border-t tw-rounded-t tw-border-l tw-border-r tw-border-gray300 tw-p-4"
   >
     <button
       @click.prevent="editor.chain().focus().toggleBold().run()"
@@ -12,6 +12,7 @@
       class="tw-p-1"
     >
       <q-icon name="mdi-format-bold" size="20px"></q-icon>
+      <q-tooltip>Negrita (Ctrl + B)</q-tooltip>
     </button>
     <button
       @click.prevent="editor.chain().focus().toggleItalic().run()"
@@ -22,6 +23,7 @@
       class="tw-p-1"
     >
       <q-icon name="mdi-format-italic" size="20px"></q-icon>
+      <q-tooltip>Cursiva (Ctrl + I)</q-tooltip>
     </button>
     <button
       @click.prevent="editor.chain().focus().toggleUnderline().run()"
@@ -31,6 +33,7 @@
       class="tw-p-1"
     >
       <q-icon name="format_underlined" size="20px"></q-icon>
+      <q-tooltip>Subrayado (Ctrl + U)</q-tooltip>
     </button>
     <button
       @click.prevent="setLink"
@@ -40,6 +43,7 @@
       class="tw-p-1"
     >
       <q-icon name="link" size="20px"></q-icon>
+      <q-tooltip>Hipervínculo</q-tooltip>
     </button>
     <button
       @click.prevent="editor.chain().focus().unsetLink().run()"
@@ -47,6 +51,7 @@
       class="tw-p-1"
     >
       <q-icon name="link_off" size="20px"></q-icon>
+      <q-tooltip>Eliminar Hipervínculo</q-tooltip>
     </button>
     <button
       @click.prevent="editor.chain().focus().toggleHeading({ level: 1 }).run()"
@@ -79,6 +84,7 @@
       class="tw-p-1"
     >
       <q-icon name="format_list_bulleted" size="20px"></q-icon>
+      <q-tooltip>Lista</q-tooltip>
     </button>
     <button
       @click.prevent="editor.chain().focus().toggleOrderedList().run()"
@@ -88,12 +94,14 @@
       class="tw-p-1"
     >
       <q-icon name="mdi-format-list-numbered" size="20px"></q-icon>
+      <q-tooltip>Lista Ordenada</q-tooltip>
     </button>
     <button
       @click.prevent="editor.chain().focus().setHorizontalRule().run()"
       class="tw-p-1"
     >
       <q-icon name="horizontal_rule" size="20px"></q-icon>
+      <q-tooltip>Línea Horizontal</q-tooltip>
     </button>
     <button
       @click.prevent="editor.chain().focus().toggleBlockquote().run()"
@@ -103,6 +111,7 @@
       class="tw-p-1"
     >
       <q-icon name="mdi-format-quote-close" size="20px"></q-icon>
+      <q-tooltip>Mención</q-tooltip>
     </button>
     <button
       @click.prevent="editor.chain().focus().toggleCode().run()"
@@ -113,6 +122,7 @@
       class="tw-p-1"
     >
       <q-icon name="code" size="20px"></q-icon>
+      <q-tooltip>Código</q-tooltip>
     </button>
     <button
       @click.prevent="editor.chain().focus().undo().run()"
@@ -152,7 +162,7 @@ const editor = useEditor({
   editorProps: {
     attributes: {
       class:
-        "tw-border tw-prose tw-border-gray400 tw-p-4 tw-min-h-[12rem] tw-max-h-[12rem] tw-overflow-y-auto tw-outline-none tw-max-w-none",
+        "tw-border tw-rounded-b tw-prose tw-border-gray300 tw-p-4 tw-min-h-[12rem] tw-max-h-[12rem] tw-overflow-y-auto tw-outline-none tw-max-w-none",
     },
   },
   extensions: [
