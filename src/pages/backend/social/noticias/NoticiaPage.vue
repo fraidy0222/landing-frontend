@@ -7,10 +7,12 @@
       :rows="noticias"
       :columns="columns"
       row-key="id"
+      :filter="searchNoticia"
       :pagination-label="getPaginationLabel"
       :loading-label="textInfo.loadingLabel"
       :rows-per-page-label="textInfo.rowPerPageLabel"
       :no-data-label="textInfo.noDatalabel"
+      :no-results-label="textInfo.noResultsLabel"
       :loading="isLoading"
     >
       <template v-slot:body-cell-portada="props">
@@ -59,7 +61,7 @@
       </template>
       <template v-slot:body-cell-creada_por_info="props">
         <td>
-          <div>{{ props.row.usuario?.name }}</div>
+          <div>{{ props.row.user?.name }}</div>
         </td>
       </template>
       <template v-slot:body-cell-estado_info="props">
@@ -79,6 +81,19 @@
       </template>
 
       <template v-slot:top-right>
+        <q-input
+          borderless
+          dense
+          debounce="300"
+          v-model="searchNoticia"
+          placeholder="Search"
+          @update:model-value="searchInfo"
+        >
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+
         <q-btn
           class="bg-primary text-white"
           @click="$router.push({ path: '/crear-noticia' })"
@@ -181,7 +196,7 @@
     <q-dialog v-model="isOpenShowDescription">
       <q-card>
         <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">Close icon</div>
+          <div class="text-h6">Descripción</div>
           <q-space />
           <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
@@ -201,7 +216,7 @@
 </style>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { api } from "boot/axios";
 import { onMounted } from "vue";
 import useTable from "src/composables/useTable";
@@ -211,6 +226,7 @@ import ButtonTooltip from "src/components/Buttons/ButtonTooltip.vue";
 import { successNotifyConfig } from "src/utils/notification/notification";
 
 const { getPaginationLabel, textInfo } = useTable();
+const searchNoticia = ref("");
 
 const columns = [
   {
@@ -305,6 +321,11 @@ onMounted(() => {
   getEstadoNoticias();
 });
 
+// watch(searchNoticia, (value) => {
+//   // console.log(value);
+//   api.get("/api/noticias", { searchNoticia: value });
+// });
+
 const getNoticias = () => {
   isLoading.value = true;
   api
@@ -317,6 +338,7 @@ const getNoticias = () => {
       handleErrors(error);
     });
 };
+
 const checkDelete = (row) => {
   deleteNoticiaId.value = row;
   isOpenDelete.value = true;
@@ -369,5 +391,12 @@ const showDescription = (description) => {
   isOpenShowDescription.value = true;
   console.log((isOpenShowDescription.value = true));
   descriptionInfo.value = description;
+};
+
+const searchInfo = (value) => {
+  isLoading.value = true;
+  api.get("/api/noticias", { searchNoticia: value }).then((response) => {
+    isLoading.value = false;
+  });
 };
 </script>

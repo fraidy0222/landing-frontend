@@ -49,7 +49,6 @@
         </div>
 
         <div v-if="props.empresa[0]?.video_institucional">
-          <!-- <VideoComponent :empresa="props.empresa" /> -->
           <slot name="video"></slot>
         </div>
         <div v-else>
