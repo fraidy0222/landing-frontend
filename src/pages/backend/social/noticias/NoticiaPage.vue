@@ -321,11 +321,6 @@ onMounted(() => {
   getEstadoNoticias();
 });
 
-// watch(searchNoticia, (value) => {
-//   // console.log(value);
-//   api.get("/api/noticias", { searchNoticia: value });
-// });
-
 const getNoticias = () => {
   isLoading.value = true;
   api
@@ -395,8 +390,12 @@ const showDescription = (description) => {
 
 const searchInfo = (value) => {
   isLoading.value = true;
-  api.get("/api/noticias", { searchNoticia: value }).then((response) => {
-    isLoading.value = false;
-  });
+  api
+    .get("/api/noticias", { params: { searchNoticia: value } })
+    .then((response) => {
+      isLoading.value = false;
+      console.log(response.data);
+      // noticias.value = response.data.noticias;
+    });
 };
 </script>
