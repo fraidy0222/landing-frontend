@@ -46,9 +46,17 @@
                 outlined
                 v-model="form.password"
                 label="Contraseña"
-                type="password"
+                :type="isPwd ? 'password' : 'text'"
                 :rules="[rules.required]"
-              />
+              >
+                <template v-slot:append>
+                  <q-icon
+                    :name="isPwd ? 'visibility_off' : 'visibility'"
+                    class="cursor-pointer"
+                    @click="isPwd = !isPwd"
+                  />
+                </template>
+              </q-input>
             </div>
             <div class="col-xs-12 col-sm-6">
               <q-input
@@ -132,6 +140,7 @@ const hasEmailError = ref(false);
 const selectRole = ref(null);
 const isLoadingUser = ref(false);
 const hasUserError = ref(false);
+const isPwd = ref(true);
 
 const { handleErrors } = handleHttpRequest();
 

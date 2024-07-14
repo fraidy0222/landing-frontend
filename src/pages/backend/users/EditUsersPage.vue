@@ -56,8 +56,16 @@
                 outlined
                 v-model="form.password"
                 label="Contraseña"
-                type="password"
-              />
+                :type="isPwd ? 'password' : 'text'"
+              >
+                <template v-slot:append>
+                  <q-icon
+                    :name="isPwd ? 'visibility_off' : 'visibility'"
+                    class="cursor-pointer"
+                    @click="isPwd = !isPwd"
+                  />
+                </template>
+              </q-input>
             </div>
             <div class="col-xs-12 col-sm-6">
               <q-input
@@ -139,6 +147,7 @@ const $q = useQuasar();
 const user_id = router.currentRoute.value.params.id;
 const isLoading = ref(false);
 const isLoadingUpdate = ref(false);
+const isPwd = ref(true);
 
 const isLoadingUser = ref(false);
 const hasUserError = ref(false);

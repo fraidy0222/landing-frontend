@@ -34,14 +34,18 @@
 
                   <q-input
                     outlined
-                    type="password"
+                    :type="isPwd ? 'password' : 'text'"
                     v-model="userForm.password"
                     label="Contraseña"
                     lazy-rules
                     :rules="[rules.required]"
                   >
                     <template v-slot:append>
-                      <q-icon name="password" />
+                      <q-icon
+                        :name="isPwd ? 'visibility_off' : 'visibility'"
+                        class="cursor-pointer"
+                        @click="isPwd = !isPwd"
+                      />
                     </template>
                   </q-input>
 
@@ -64,10 +68,12 @@
   </q-layout>
 </template>
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { authStore } from "src/stores/auth-store";
 import rules from "src/utils/rules";
 import { storeToRefs } from "pinia";
+
+const isPwd = ref(true);
 
 const userForm = ref({
   email: "",
